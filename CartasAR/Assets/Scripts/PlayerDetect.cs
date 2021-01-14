@@ -18,6 +18,9 @@ public class PlayerDetect : MonoBehaviour
     public GameObject ARSessionOriginGO;
     PlaceOnPlane placeOnPlane;
 
+    private Vector3 playerPosition;
+    private Vector3 placedTablePosition;
+
     void Awake()
     {
         aRTrackedPoseDriver = arCamera.GetComponent<TrackedPoseDriver>();
@@ -27,11 +30,15 @@ public class PlayerDetect : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        playerPosition = aRTrackedPoseDriver.transform.position;
         Debug.Log("PositionPlayer: " + aRTrackedPoseDriver.transform.position);
+        Debug.Log("Rotation: " + aRTrackedPoseDriver.transform.rotation.normalized);
 
         if (isPlaced) {
             placedTable = placeOnPlane.spawnedObject;
-            distanceTablePlayer = (placedTable.transform.position - aRTrackedPoseDriver.transform.position).magnitude;
+            placedTablePosition = placedTable.transform.position;
+
+            distanceTablePlayer = (placedTablePosition - playerPosition).magnitude;
 
             Debug.Log("DistanceTablePlayer: " + distanceTablePlayer);
 
