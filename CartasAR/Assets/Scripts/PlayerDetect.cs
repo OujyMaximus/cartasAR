@@ -31,8 +31,8 @@ public class PlayerDetect : MonoBehaviour
     void Update()
     {
         playerPosition = aRTrackedPoseDriver.transform.position;
-        Debug.Log("PositionPlayer: " + aRTrackedPoseDriver.transform.position);
-        Debug.Log("Rotation: " + aRTrackedPoseDriver.transform.rotation.normalized);
+        //Debug.Log("PositionPlayer: " + aRTrackedPoseDriver.transform.position);
+        //Debug.Log("Rotation: " + aRTrackedPoseDriver.transform.rotation.normalized);
 
         if (isPlaced) {
             placedTable = placeOnPlane.spawnedObject;
@@ -40,7 +40,7 @@ public class PlayerDetect : MonoBehaviour
 
             distanceTablePlayer = (placedTablePosition - playerPosition).magnitude;
 
-            Debug.Log("DistanceTablePlayer: " + distanceTablePlayer);
+            //Debug.Log("DistanceTablePlayer: " + distanceTablePlayer);
 
             if(distanceTablePlayer < 0.5)
             {

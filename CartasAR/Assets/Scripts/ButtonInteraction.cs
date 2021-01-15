@@ -10,6 +10,7 @@ public class ButtonInteraction : MonoBehaviour
     private GameObject cardInstantiate;
 
     public GameObject arCamera;
+    public GameObject cardPositionGO;
     TrackedPoseDriver aRTrackedPoseDriver;
 
     private bool cardSelected;
@@ -27,13 +28,21 @@ public class ButtonInteraction : MonoBehaviour
 
     void Update()
     {
-        playerRotation = aRTrackedPoseDriver.transform.rotation.normalized;
+        playerRotation = aRTrackedPoseDriver.transform.rotation;
         playerPosition = aRTrackedPoseDriver.transform.position;
 
         if (cardSelected)
         {
-            cardPosition = new Vector3(playerPosition.x + playerRotation.x, playerPosition.y + playerRotation.y, playerPosition.z + playerRotation.z);
-            cardRotation = new Quaternion(1 - playerRotation.x, 1 - playerRotation.y, 1 - playerRotation.z, 1 - playerRotation.w);
+            cardPosition = cardPositionGO.transform.position;
+            //cardRotation = new Quaternion(1 - playerRotation.x, 1 - playerRotation.y, 1 - playerRotation.z, 1 - playerRotation.w);
+            cardRotation = Quaternion.Euler(playerRotation.eulerAngles.x * -1, (playerRotation.eulerAngles.y * -1)+75f, playerRotation.eulerAngles.z * -1);
+
+            //Debug
+            playerPosition = new Vector3(playerPosition.x + 0.1f, playerPosition.y, playerPosition.z + 0.1f);
+            aRTrackedPoseDriver.transform.position = playerPosition;
+            //Debug
+
+            Debug.Log("Playerposition: " + playerPosition +"\tPlayerQuaternion: " + playerRotation + "\tCardPosition:" + cardPosition + "\tCardRotation:" + cardRotation);
 
             cardInstantiate.transform.position = cardPosition;
             cardInstantiate.transform.rotation = cardRotation;
@@ -57,7 +66,7 @@ public class ButtonInteraction : MonoBehaviour
     //Este metodo se activa al pulsar el boton de mazo y indica si hay que actualizar la posición de las cartas
     public void buttonSelectCardPress()
     {
-        cardPosition = new Vector3(playerPosition.x + playerRotation.x, playerPosition.y + playerRotation.y, playerPosition.z + playerRotation.z);
+        cardPosition = cardPositionGO.transform.position;
         cardRotation = new Quaternion(1 - playerRotation.x, 1 - playerRotation.y, 1 - playerRotation.z, 1 - playerRotation.w);
 
         cardSelected = !cardSelected;
