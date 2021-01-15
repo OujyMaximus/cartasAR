@@ -33,19 +33,17 @@ public class ButtonInteraction : MonoBehaviour
 
         if (cardSelected)
         {
-            cardPosition = cardPositionGO.transform.position;
             //cardRotation = new Quaternion(1 - playerRotation.x, 1 - playerRotation.y, 1 - playerRotation.z, 1 - playerRotation.w);
-            cardRotation = Quaternion.Euler(playerRotation.eulerAngles.x * -1, (playerRotation.eulerAngles.y * -1)+75f, playerRotation.eulerAngles.z * -1);
+            cardRotation = Quaternion.Euler(playerRotation.eulerAngles.x - 180f, playerRotation.eulerAngles.y - 180f, playerRotation.eulerAngles.z);
 
             //Debug
             playerPosition = new Vector3(playerPosition.x + 0.1f, playerPosition.y, playerPosition.z + 0.1f);
             aRTrackedPoseDriver.transform.position = playerPosition;
             //Debug
 
-            Debug.Log("Playerposition: " + playerPosition +"\tPlayerQuaternion: " + playerRotation + "\tCardPosition:" + cardPosition + "\tCardRotation:" + cardRotation);
+            Debug.Log("Playerposition: " + playerPosition +"\tPlayerQuaternion: " + playerRotation.eulerAngles + "\tCardPosition:" + cardPosition + "\tCardRotation:" + cardRotation.eulerAngles);
 
-            cardInstantiate.transform.position = cardPosition;
-            cardInstantiate.transform.rotation = cardRotation;
+            //cardInstantiate.transform.rotation = cardRotation;
         }
     }
 
@@ -66,10 +64,21 @@ public class ButtonInteraction : MonoBehaviour
     //Este metodo se activa al pulsar el boton de mazo y indica si hay que actualizar la posición de las cartas
     public void buttonSelectCardPress()
     {
-        cardPosition = cardPositionGO.transform.position;
-        cardRotation = new Quaternion(1 - playerRotation.x, 1 - playerRotation.y, 1 - playerRotation.z, 1 - playerRotation.w);
-
         cardSelected = !cardSelected;
-        cardInstantiate = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
+
+        if (cardSelected)
+        {
+            cardPosition = cardPositionGO.transform.position;
+            //cardRotation = new Quaternion(1 - playerRotation.x, 1 - playerRotation.y, 1 - playerRotation.z, 1 - playerRotation.w);
+            cardRotation = cardPositionGO.transform.rotation;
+
+            cardInstantiate = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
+            cardInstantiate.transform.SetParent(cardPositionGO.transform);
+        }
+        else
+        {
+            if (cardInstantiate != null)
+                Destroy(cardInstantiate);
+        }
     }
 }
