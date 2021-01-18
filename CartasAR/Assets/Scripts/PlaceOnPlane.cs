@@ -32,6 +32,8 @@ public class PlaceOnPlane : MonoBehaviour
     public GameObject InteractionGameObject;
     private PlayerDetect playerDetect;
 
+    private Vector2 touchPosition;
+
     void Awake()
     {
         m_RaycastManager = GetComponent<ARRaycastManager>();
@@ -50,7 +52,6 @@ public class PlaceOnPlane : MonoBehaviour
             // will be the closest hit.
             var hitPose = s_Hits[0].pose;
             var cameraForward = Camera.current.transform.forward;
-            var cameraBearing = new Vector3(cameraForward.x, 0, cameraForward.z).normalized;
 
             if (spawnedObject != null)
                 spawnedObject.SetActive(buttonInteraction.isActive);
@@ -58,17 +59,44 @@ public class PlaceOnPlane : MonoBehaviour
             placementIndicator.SetActive(buttonInteraction.isActive);
             placementIndicator.transform.SetPositionAndRotation(hitPose.position, hitPose.rotation);
 
-            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && buttonInteraction.isActive)
+            if (Input.touchCount > 0)
             {
-                if (spawnedObject == null)
+                Touch touch = Input.GetTouch(0);
+                if (touch.phase == TouchPhase.Began)
                 {
-                    spawnedObject = Instantiate(m_PlacedPrefab, hitPose.position, hitPose.rotation);
-                    playerDetect.isPlaced = true;
+                    touchPosition = touch.position;
+                    Debug.Log("TouchPosition: " + touchPosition);
+
+                    if (buttonInteraction.isActive)
+                    {
+                        if (spawnedObject == null)
+                        {
+                            spawnedObject = Instantiate(m_PlacedPrefab, hitPose.position, hitPose.rotation);
+                            playerDetect.isPlaced = true;
+                        }
+                        else
+                        {
+                            spawnedObject.transform.position = hitPose.position;
+                            spawnedObject.transform.rotation = hitPose.rotation;
+                        }
+                    }
                 }
-                else
+
+                if(touch.phase == TouchPhase.Moved)
                 {
-                    spawnedObject.transform.position = hitPose.position;
-                    spawnedObject.transform.rotation = hitPose.rotation;
+                    if (touch.position.x >= (touchPosition.x+150))
+                    {
+                        Debug.Log("Pa la izquierda");
+                    }
+                    if (touch.position.x <= (touchPosition.x-150))
+                    {
+                        Debug.Log("Pa la derecha");
+                    }
+                }
+
+                if (touch.phase == TouchPhase.Ended)
+                {
+
                 }
             }
         }
