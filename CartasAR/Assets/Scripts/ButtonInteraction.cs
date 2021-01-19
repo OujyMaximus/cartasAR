@@ -8,6 +8,8 @@ public class ButtonInteraction : MonoBehaviour
     public GameObject placementIndicator;
     public GameObject cardPrefab;
     private GameObject cardInstantiate;
+    private GameObject cardInstantiate2;
+    private GameObject cardInstantiate3;
 
     public GameObject arCamera;
     public GameObject cardPositionGO;
@@ -37,8 +39,8 @@ public class ButtonInteraction : MonoBehaviour
             cardRotation = Quaternion.Euler(playerRotation.eulerAngles.x - 180f, playerRotation.eulerAngles.y - 180f, playerRotation.eulerAngles.z);
 
             //Debug
-            playerPosition = new Vector3(playerPosition.x + 0.1f, playerPosition.y, playerPosition.z + 0.1f);
-            aRTrackedPoseDriver.transform.position = playerPosition;
+            //playerPosition = new Vector3(playerPosition.x + 0.1f, playerPosition.y, playerPosition.z + 0.1f);
+            //aRTrackedPoseDriver.transform.position = playerPosition;
             //Debug
 
             Debug.Log("Playerposition: " + playerPosition +"\tPlayerQuaternion: " + playerRotation.eulerAngles + "\tCardPosition:" + cardPosition + "\tCardRotation:" + cardRotation.eulerAngles);
@@ -74,6 +76,16 @@ public class ButtonInteraction : MonoBehaviour
 
             cardInstantiate = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
             cardInstantiate.transform.SetParent(cardPositionGO.transform);
+
+            Vector3 cardPosition2 = new Vector3((cardPosition.x + cardPrefab.GetComponent<Collider>().bounds.size.x)+50, cardPosition.y, cardPosition.z);
+
+            cardInstantiate2 = GameObject.Instantiate(cardPrefab, cardPosition2, cardRotation);
+            cardInstantiate2.transform.SetParent(cardPositionGO.transform);
+
+            Vector3 cardPosition3 = new Vector3((cardPosition.x + cardPrefab.GetComponent<Collider>().bounds.size.x)*2 + 100, cardPosition.y, cardPosition.z);
+
+            cardInstantiate3 = GameObject.Instantiate(cardPrefab, cardPosition3, cardRotation);
+            cardInstantiate3.transform.SetParent(cardPositionGO.transform);
         }
         else
         {
