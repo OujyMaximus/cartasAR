@@ -35,17 +35,11 @@ public class ButtonInteraction : MonoBehaviour
 
         if (cardSelected)
         {
-            //cardRotation = new Quaternion(1 - playerRotation.x, 1 - playerRotation.y, 1 - playerRotation.z, 1 - playerRotation.w);
-            cardRotation = Quaternion.Euler(playerRotation.eulerAngles.x - 180f, playerRotation.eulerAngles.y - 180f, playerRotation.eulerAngles.z);
-
             //Debug
             //playerPosition = new Vector3(playerPosition.x + 0.1f, playerPosition.y, playerPosition.z + 0.1f);
             //aRTrackedPoseDriver.transform.position = playerPosition;
             //Debug
 
-            Debug.Log("Playerposition: " + playerPosition +"\tPlayerQuaternion: " + playerRotation.eulerAngles + "\tCardPosition:" + cardPosition + "\tCardRotation:" + cardRotation.eulerAngles);
-
-            //cardInstantiate.transform.rotation = cardRotation;
         }
     }
 
@@ -77,20 +71,26 @@ public class ButtonInteraction : MonoBehaviour
             cardInstantiate = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
             cardInstantiate.transform.SetParent(cardPositionGO.transform);
 
-            Vector3 cardPosition2 = new Vector3((cardPosition.x + cardPrefab.GetComponent<Collider>().bounds.size.x)+50, cardPosition.y, cardPosition.z);
+            Vector3 cardPosition2 = new Vector3(cardInstantiate.transform.localPosition.x - 0.08f, cardInstantiate.transform.localPosition.y, cardInstantiate.transform.localPosition.z - 0.05f);
 
-            cardInstantiate2 = GameObject.Instantiate(cardPrefab, cardPosition2, cardRotation);
+            cardInstantiate2 = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
             cardInstantiate2.transform.SetParent(cardPositionGO.transform);
+            cardInstantiate2.transform.localPosition = cardPosition2;
 
-            Vector3 cardPosition3 = new Vector3((cardPosition.x + cardPrefab.GetComponent<Collider>().bounds.size.x)*2 + 100, cardPosition.y, cardPosition.z);
+            Vector3 cardPosition3 = new Vector3(cardInstantiate.transform.localPosition.x - (0.08f * 2), cardInstantiate.transform.localPosition.y, cardInstantiate.transform.localPosition.z - 0.05f);
 
-            cardInstantiate3 = GameObject.Instantiate(cardPrefab, cardPosition3, cardRotation);
+            cardInstantiate3 = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
             cardInstantiate3.transform.SetParent(cardPositionGO.transform);
+            cardInstantiate3.transform.localPosition = cardPosition3;
         }
         else
         {
             if (cardInstantiate != null)
                 Destroy(cardInstantiate);
+            if (cardInstantiate2 != null)
+                Destroy(cardInstantiate2);
+            if (cardInstantiate3 != null)
+                Destroy(cardInstantiate3);
         }
     }
 }

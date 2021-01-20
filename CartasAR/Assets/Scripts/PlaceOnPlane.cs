@@ -34,6 +34,9 @@ public class PlaceOnPlane : MonoBehaviour
 
     private Vector2 touchPosition;
 
+    [SerializeField]
+    private Camera arCamera;
+
     void Awake()
     {
         m_RaycastManager = GetComponent<ARRaycastManager>();
@@ -44,7 +47,7 @@ public class PlaceOnPlane : MonoBehaviour
 
     void Update()
     {
-        screenCenter = Camera.current.ViewportToScreenPoint(new Vector3(0.5f, 0.5f));
+        screenCenter = arCamera.ViewportToScreenPoint(new Vector3(0.5f, 0.5f));
 
         if (m_RaycastManager.Raycast(screenCenter, s_Hits, TrackableType.Planes))
         {
