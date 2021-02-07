@@ -28,22 +28,7 @@ public class ButtonInteraction : MonoBehaviour
         aRTrackedPoseDriver = arCamera.GetComponent<TrackedPoseDriver>();
     }
 
-    void Update()
-    {
-        playerRotation = aRTrackedPoseDriver.transform.rotation;
-        playerPosition = aRTrackedPoseDriver.transform.position;
-
-        if (cardSelected)
-        {
-            //Debug
-            //playerPosition = new Vector3(playerPosition.x + 0.1f, playerPosition.y, playerPosition.z + 0.1f);
-            //aRTrackedPoseDriver.transform.position = playerPosition;
-            //Debug
-
-        }
-    }
-
-    public void buttonPlacementPress()
+    public void ButtonPlacementPress()
     {
         isActive = !isActive;
         placementIndicator.SetActive(isActive);
@@ -58,7 +43,7 @@ public class ButtonInteraction : MonoBehaviour
     }
 
     //Este metodo se activa al pulsar el boton de mazo y indica si hay que actualizar la posición de las cartas
-    public void buttonSelectCardPress()
+    public void ButtonSelectCardPress()
     {
         cardSelected = !cardSelected;
 
@@ -93,4 +78,6 @@ public class ButtonInteraction : MonoBehaviour
                 Destroy(cardInstantiate3);
         }
     }
+
+    public bool GetCardSelectStatus() => cardSelected;
 }

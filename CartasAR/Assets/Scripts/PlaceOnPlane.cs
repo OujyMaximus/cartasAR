@@ -6,43 +6,54 @@ using UnityEngine.XR.ARSubsystems;
 [RequireComponent(typeof(ARRaycastManager))]
 public class PlaceOnPlane : MonoBehaviour
 {
-    [SerializeField]
-    [Tooltip("Instantiates this prefab on a plane at the touch location.")]
+    Camera arCamera;
+    ARRaycastManager m_RaycastManager;
     GameObject m_PlacedPrefab;
+    GameObject placedPrefab;
+    GameObject spawnedObject;
+    GameObject placementIndicator;
+    GameObject buttonPlacement;
+    GameObject buttonCardSelect;
+    GameObject InteractionGameObject;
+    PlayerDetect playerDetect;
+    ButtonInteraction buttonInteraction;
+    ButtonInteraction buttonCard;
 
-    /// <summary>
-    /// The prefab to instantiate on touch.
-    /// </summary>
-    public GameObject placedPrefab
+    static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
+
+    Vector2 touchPosition;
+    Vector3 screenCenter;
+
+    public PlaceOnPlane(
+                        GameObject m_PlacedPrefab,
+                        GameObject placedPrefab,
+                        GameObject spawnedObject,
+                        GameObject placementIndicator,
+                        GameObject buttonPlacement,
+                        GameObject buttonCardSelect,
+                        GameObject InteractionGameObject,
+                        PlayerDetect playerDetect,
+                        Camera arCamera)
     {
-        get { return m_PlacedPrefab; }
-        set { m_PlacedPrefab = value; }
+        this.m_PlacedPrefab = m_PlacedPrefab;
+        this.placedPrefab = placedPrefab;
+        this.spawnedObject = spawnedObject;
+        this.placementIndicator = placementIndicator;
+        this.buttonPlacement = buttonPlacement;
+        this.buttonCardSelect = buttonCardSelect;
+        this.InteractionGameObject = InteractionGameObject;
+        this.playerDetect = playerDetect;
+        this.arCamera = arCamera;
     }
-
-    /// <summary>
-    /// The object instantiated as a result of a successful raycast intersection with a plane.
-    /// </summary>
-    public GameObject spawnedObject { get; private set; }
-    public GameObject placementIndicator;
-
-    private Vector3 screenCenter;
-
-    public GameObject button;
-
-    public GameObject InteractionGameObject;
-    private PlayerDetect playerDetect;
-
-    private Vector2 touchPosition;
-
-    [SerializeField]
-    private Camera arCamera;
 
     void Awake()
     {
         m_RaycastManager = GetComponent<ARRaycastManager>();
-        buttonInteraction = button.GetComponent<ButtonInteraction>();
         screenCenter = new Vector3();
-        playerDetect = InteractionGameObject.GetComponent<PlayerDetect>();
+        
+        //buttonInteraction = buttonPlacement.GetComponent<ButtonInteraction>();
+        //buttonCard = buttonCardSelect.GetComponent<ButtonInteraction>();
+        //playerDetect = InteractionGameObject.GetComponent<PlayerDetect>();
     }
 
     void Update()
@@ -68,8 +79,7 @@ public class PlaceOnPlane : MonoBehaviour
                 if (touch.phase == TouchPhase.Began)
                 {
                     touchPosition = touch.position;
-                    Debug.Log("TouchPosition: " + touchPosition);
-
+                    
                     if (buttonInteraction.isActive)
                     {
                         if (spawnedObject == null)
@@ -87,13 +97,16 @@ public class PlaceOnPlane : MonoBehaviour
 
                 if(touch.phase == TouchPhase.Moved)
                 {
-                    if (touch.position.x >= (touchPosition.x+150))
+                    if (buttonCard.GetCardSelectStatus())
                     {
-                        Debug.Log("Pa la izquierda");
-                    }
-                    if (touch.position.x <= (touchPosition.x-150))
-                    {
-                        Debug.Log("Pa la derecha");
+                        if (touch.position.x >= (touchPosition.x + 150))
+                        {
+                            Debug.Log("Pa la izquierda");
+                        }
+                        if (touch.position.x <= (touchPosition.x - 150))
+                        {
+                            Debug.Log("Pa la derecha");
+                        }
                     }
                 }
 
@@ -108,9 +121,4 @@ public class PlaceOnPlane : MonoBehaviour
             placementIndicator.SetActive(false);
         }
     }
-
-    static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
-
-    ARRaycastManager m_RaycastManager;
-    ButtonInteraction buttonInteraction;
 }
