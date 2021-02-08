@@ -20,10 +20,6 @@ public class ButtonInteraction : MonoBehaviour
 
     private bool isActive;
     private GameObject[] cardsInstatiated;
-    private GameObject cardInstantiate;
-    private GameObject cardInstantiate2;
-    private GameObject cardInstantiate3;
-
 
     private bool cardSelected;
     private Vector3 playerPosition;

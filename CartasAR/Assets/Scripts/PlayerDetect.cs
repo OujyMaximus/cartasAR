@@ -1,51 +1,85 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SpatialTracking;
+using UnityEngine.UI;
 
 public class PlayerDetect : MonoBehaviour
 {
-    public GameObject arCamera;
-    TrackedPoseDriver aRTrackedPoseDriver;
-
-    GameObject placedTable;
-    public bool isPlaced;
-
-    float distanceTablePlayer;
-
-    public Material iceMaterial;
-
     public GameObject ARSessionOriginGO;
     PlaceOnPlane placeOnPlane;
 
-    private Vector3 playerPosition;
-    private Vector3 placedTablePosition;
+    private bool isActive;
+    private GameObject[] cardsInstatiated;
 
-    void Awake()
+    private bool cardSelected;
+    private Quaternion playerRotation;
+
+    private Vector3 cardPosition;
+    private Quaternion cardRotation;
+
+    private UnityAction<bool, Image> buttonPlacementPress;
+    private Func<bool, GameObject[]> buttonSelectCardPress;
+
+    private UnityAction checkPlayerTableDistance;
+
+    public PlayerDetect(
+                        UnityAction<bool, Image> buttonPlacementPress,
+                        Func<bool, GameObject[]> buttonSelectCardPress,
+                        UnityAction checkPlayerTableDistance)
     {
-        aRTrackedPoseDriver = arCamera.GetComponent<TrackedPoseDriver>();
-        placeOnPlane = ARSessionOriginGO.GetComponent<PlaceOnPlane>();
+        this.buttonPlacementPress = buttonPlacementPress;
+        this.buttonSelectCardPress = buttonSelectCardPress;
+        this.checkPlayerTableDistance = checkPlayerTableDistance;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void AwakePlayerDetect()
     {
-        playerPosition = aRTrackedPoseDriver.transform.position;
-        //Debug.Log("PositionPlayer: " + aRTrackedPoseDriver.transform.position);
-        //Debug.Log("Rotation: " + aRTrackedPoseDriver.transform.rotation.normalized);
-
-        if (isPlaced) {
-            placedTable = placeOnPlane.spawnedObject;
-            placedTablePosition = placedTable.transform.position;
-
-            distanceTablePlayer = (placedTablePosition - playerPosition).magnitude;
-
-            //Debug.Log("DistanceTablePlayer: " + distanceTablePlayer);
-
-            if(distanceTablePlayer < 0.5)
-            {
-                placedTable.GetComponent<MeshRenderer>().material = iceMaterial;
-            }
-        }
+        isActive = true;
+        cardSelected = false;
     }
+
+    public void StartPlayerDetect()
+    {
+
+    }
+
+    public void UpdatePlayerDetect()
+    {
+        checkPlayerTableDistance?.Invoke();
+    }
+
+    //----------------------------------------------
+    //BUTTON INTERACTION
+    //----------------------------------------------
+
+    public void ButtonPlacementPress()
+    {
+        buttonPlacementPress?.Invoke(isActive, GetComponent<Image>());
+    }
+
+    //----------------------------------------------
+
+    //Este metodo se activa al pulsar el boton de mazo y indica si hay que actualizar la posición de las cartas
+    public void ButtonSelectCardPress()
+    {
+        cardSelected = !cardSelected;
+        cardsInstatiated = buttonSelectCardPress?.Invoke(cardSelected);
+    }
+
+    //----------------------------------------------
+
+    public bool GetCardSelectStatus() => cardSelected;
+
+    //----------------------------------------------
+
+    public bool GetPlacementIndicatorStatus() => isActive;
+
+    //----------------------------------------------
+    //PLAYER DETECT
+    //----------------------------------------------
+
+
 }

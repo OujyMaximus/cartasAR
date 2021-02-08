@@ -50,11 +50,13 @@ public class PlaceOnPlane : MonoBehaviour
     {
         m_RaycastManager = GetComponent<ARRaycastManager>();
         screenCenter = new Vector3();
-        
-        //buttonInteraction = buttonPlacement.GetComponent<ButtonInteraction>();
-        //buttonCard = buttonCardSelect.GetComponent<ButtonInteraction>();
-        //playerDetect = InteractionGameObject.GetComponent<PlayerDetect>();
     }
+
+    /*
+     * 
+     * INTENTAR PASAR LA DETECCION DE GESTOS A PLAYERDETECT Y DEJAR AQUI SOLO LA DETECCION DE PLANOS
+     * 
+     */
 
     void Update()
     {

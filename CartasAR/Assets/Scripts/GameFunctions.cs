@@ -15,20 +15,32 @@ public class GameFunctions : MonoBehaviour
     public GameObject placementIndicator;
     public GameObject cardPrefab;
     public GameObject arCamera;
+    public GameObject arSessionOrigin;
     public GameObject cardPositionGO;
     public TrackedPoseDriver aRTrackedPoseDriver;
     #endregion
 
-    #region ButtonInteraction variables
+    #region PlayerDetect variables
+    private Vector3 playerPosition;
+    private GameObject placedTable;
+    private float distanceTablePlayer;
+    private Vector3 placedTablePosition;
+    private bool isPlaced;
 
+    public Material iceMaterial;
     #endregion
 
-    void Start()
+    public void AwakeGameFunction()
+    {
+
+    }
+
+    public void StartGameFunction()
     {
         
     }
 
-    void Update()
+    public void UpdateGameFunction()
     {
         
     }
@@ -66,28 +78,50 @@ public class GameFunctions : MonoBehaviour
             cardRotation = cardPositionGO.transform.rotation;
 
             cardsInstantiated[0] = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
-            cardInstantiate.transform.SetParent(cardPositionGO.transform);
+            cardsInstantiated[0].transform.SetParent(cardPositionGO.transform);
 
-            Vector3 cardPosition2 = new Vector3(cardInstantiate.transform.localPosition.x - 0.08f, cardInstantiate.transform.localPosition.y, cardInstantiate.transform.localPosition.z - 0.05f);
+            Vector3 cardPosition2 = new Vector3(cardsInstantiated[0].transform.localPosition.x - 0.08f, cardsInstantiated[0].transform.localPosition.y, cardsInstantiated[0].transform.localPosition.z - 0.05f);
 
-            cardInstantiate2 = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
-            cardInstantiate2.transform.SetParent(cardPositionGO.transform);
-            cardInstantiate2.transform.localPosition = cardPosition2;
+            cardsInstantiated[1] = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
+            cardsInstantiated[1].transform.SetParent(cardPositionGO.transform);
+            cardsInstantiated[1].transform.localPosition = cardPosition2;
 
-            Vector3 cardPosition3 = new Vector3(cardInstantiate.transform.localPosition.x - (0.08f * 2), cardInstantiate.transform.localPosition.y, cardInstantiate.transform.localPosition.z - 0.05f);
+            Vector3 cardPosition3 = new Vector3(cardsInstantiated[0].transform.localPosition.x - (0.08f * 2), cardsInstantiated[0].transform.localPosition.y, cardsInstantiated[0].transform.localPosition.z - 0.05f);
 
-            cardInstantiate3 = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
-            cardInstantiate3.transform.SetParent(cardPositionGO.transform);
-            cardInstantiate3.transform.localPosition = cardPosition3;
+            cardsInstantiated[2] = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
+            cardsInstantiated[2].transform.SetParent(cardPositionGO.transform);
+            cardsInstantiated[2].transform.localPosition = cardPosition3;
         }
         else
         {
-            if (cardInstantiate != null)
-                Destroy(cardInstantiate);
-            if (cardInstantiate2 != null)
-                Destroy(cardInstantiate2);
-            if (cardInstantiate3 != null)
-                Destroy(cardInstantiate3);
+            if (cardsInstantiated[0] != null)
+                Destroy(cardsInstantiated[0]);
+            if (cardsInstantiated[1] != null)
+                Destroy(cardsInstantiated[1]);
+            if (cardsInstantiated[2] != null)
+                Destroy(cardsInstantiated[2]);
+        }
+
+        return cardsInstantiated;
+    }
+
+
+    //Funcion para comprobar la distancia entre el jugador y el tablero, se ejecutara en el Update de PlayerDetect
+    public void CheckPlayerTableDistance()
+    {
+        playerPosition = aRTrackedPoseDriver.transform.position;
+
+        if (isPlaced)
+        {
+            placedTable = placeOnPlane.spawnedObject;
+            placedTablePosition = placedTable.transform.position;
+
+            distanceTablePlayer = (placedTablePosition - playerPosition).magnitude;
+
+            if (distanceTablePlayer < 0.5)
+            {
+                placedTable.GetComponent<MeshRenderer>().material = iceMaterial;
+            }
         }
     }
 }
