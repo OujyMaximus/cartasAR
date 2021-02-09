@@ -3,21 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SpatialTracking;
 using UnityEngine.UI;
+using UnityEngine.XR.ARFoundation;
 
 public class GameFunctions : MonoBehaviour
 {
     #region Scripts variables
-    private PlaceOnPlane placeOnPlane;
+    private CameraDetection cameraDetection;
     private PlayerDetect playerDetect;
     #endregion
 
     #region Scene GameObject variables
     public GameObject placementIndicator;
     public GameObject cardPrefab;
-    public GameObject arCamera;
-    public GameObject arSessionOrigin;
+    private GameObject arSessionOrigin;
+    public GameObject arCameraGO;
+    private Camera arCamera;
+    private TrackedPoseDriver aRTrackedPoseDriver;
     public GameObject cardPositionGO;
-    public TrackedPoseDriver aRTrackedPoseDriver;
     #endregion
 
     #region PlayerDetect variables
@@ -30,28 +32,49 @@ public class GameFunctions : MonoBehaviour
     public Material iceMaterial;
     #endregion
 
-    public void AwakeGameFunction()
-    {
+    #region CameraDetection variables
+    private ARRaycastManager arRaycastManager;
+    public GameObject tablePrefab;
+    #endregion
 
+    private void Awake()
+    {
+        arSessionOrigin = this.gameObject;
+        arCamera = arCameraGO.GetComponent<Camera>();
+        aRTrackedPoseDriver = arCameraGO.GetComponent<TrackedPoseDriver>();
+
+        playerDetect = new PlayerDetect(
+                        ButtonPlacementPress,
+                        ButtonSelectCardPress,
+                        CheckPlayerTableDistance,
+                        CheckCardSwitching);
+
+        playerDetect.AwakePlayerDetect();
+
+        arRaycastManager = arSessionOrigin.GetComponent<ARRaycastManager>();
+
+        cameraDetection = new CameraDetection(
+                        arRaycastManager,
+                        tablePrefab,
+                        placementIndicator,
+                        playerDetect);
+
+        cameraDetection.AwakeCameraDetection();
     }
 
-    public void StartGameFunction()
+    private void Update()
     {
-        
-    }
-
-    public void UpdateGameFunction()
-    {
-        
+        playerDetect.UpdatePlayerDetect();
+        cameraDetection.UpdateCameraDetection();
     }
 
     //----------------------------------------------
-    //BUTTON INTERACTION
+    //BUTTONS METHODS
     //----------------------------------------------
 
     public void ButtonPlacementPress(bool isActive, Image image)
     {
-        isActive = !isActive;
+        cameraDetection.ChangeIsPlacementSelectedStatus(isActive);
         placementIndicator.SetActive(isActive);
         if (isActive)
         {
@@ -105,6 +128,9 @@ public class GameFunctions : MonoBehaviour
         return cardsInstantiated;
     }
 
+    //----------------------------------------------
+    //PLAYER ENVIRONMENT METHODS
+    //----------------------------------------------
 
     //Funcion para comprobar la distancia entre el jugador y el tablero, se ejecutara en el Update de PlayerDetect
     public void CheckPlayerTableDistance()
@@ -113,7 +139,7 @@ public class GameFunctions : MonoBehaviour
 
         if (isPlaced)
         {
-            placedTable = placeOnPlane.spawnedObject;
+            placedTable = cameraDetection.GetSpawnedObject();
             placedTablePosition = placedTable.transform.position;
 
             distanceTablePlayer = (placedTablePosition - playerPosition).magnitude;
@@ -123,5 +149,46 @@ public class GameFunctions : MonoBehaviour
                 placedTable.GetComponent<MeshRenderer>().material = iceMaterial;
             }
         }
+    }
+
+    //----------------------------------------------
+    //CARDS METHODS
+    //----------------------------------------------
+
+    //Esta funcion comprueba si el jugador esta arrastrando el dedo hacia la derecha o la izquierda si las cartas estan seleccionadas
+    public void CheckCardSwitching(Vector2 touchPosition)
+    {
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            if(touch.phase == TouchPhase.Began)
+                playerDetect.SetTouchPosition(touch.position);
+
+            if (touch.phase == TouchPhase.Moved)
+            {
+                if (touch.position.x >= (touchPosition.x + 150))
+                {
+                    Debug.Log("Pa la izquierda");
+                }
+                if (touch.position.x <= (touchPosition.x - 150))
+                {
+                    Debug.Log("Pa la derecha");
+                }
+            }
+        }
+    }
+
+    //----------------------------------------------
+    //CAMERA DETECTION METHODS
+    //----------------------------------------------
+
+    public void PlaneDetection()
+    {
+        /*
+         * 
+         * BUSCAR FORMA DE TRASLADAR EL PLANE DETECTION AQUI Y REALIZAR LA LLAMADA EN CAMERADETECTION
+         * 
+         */
     }
 }
