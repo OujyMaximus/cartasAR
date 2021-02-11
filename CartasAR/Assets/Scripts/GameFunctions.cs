@@ -37,7 +37,7 @@ public class GameFunctions : MonoBehaviour
     public GameObject tablePrefab;
     #endregion
 
-    private void Awake()
+    private void Start()
     {
         arSessionOrigin = this.gameObject;
         arCamera = arCameraGO.GetComponent<Camera>();
@@ -75,7 +75,6 @@ public class GameFunctions : MonoBehaviour
     public void ButtonPlacementPress(bool isActive, Image image)
     {
         cameraDetection.ChangeIsPlacementSelectedStatus(isActive);
-        placementIndicator.SetActive(isActive);
         if (isActive)
         {
             image.color = new Color(0.2926f, 1f, 0.033f, 1f);

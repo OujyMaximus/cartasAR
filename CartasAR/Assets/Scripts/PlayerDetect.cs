@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SpatialTracking;
 using UnityEngine.UI;
 
 public class PlayerDetect : MonoBehaviour
@@ -43,6 +40,8 @@ public class PlayerDetect : MonoBehaviour
         cardSelected = false;
 
         touchPosition = new Vector2();
+
+        ConfigureButtons();
     }
 
     public void StartPlayerDetect()
@@ -53,18 +52,32 @@ public class PlayerDetect : MonoBehaviour
     public void UpdatePlayerDetect()
     {
         //Aqui habra que poner comprobaciones para que se ejecuten solo en x situaciones
-        CheckPlayerTableDistance();
-        CheckCardSwitching();
+        //CheckPlayerTableDistance();
+        //CheckCardSwitching();
+    }
+
+    public void ConfigureButtons()
+    {
+        Button[] buttons = FindObjectsOfType<Button>();
+
+        foreach (Button b in buttons)
+        {
+            if (b.gameObject.name == "ButtonPlacement")
+                b.onClick.AddListener(ButtonPlacementPress);
+            else if (b.gameObject.name == "ButtonCard")
+                b.onClick.AddListener(ButtonSelectCardPress);
+        }
     }
 
     //----------------------------------------------
     //BUTTONS METHODS
     //----------------------------------------------
 
-    public void ButtonPlacementPress()
+    void ButtonPlacementPress()
     {
+        Debug.Log("Pulsado");
         isActive = !isActive;
-        buttonPlacementPress?.Invoke(isActive, GetComponent<Image>());
+        buttonPlacementPress?.Invoke(isActive, this.gameObject.GetComponent<Image>());
     }
 
     //----------------------------------------------
