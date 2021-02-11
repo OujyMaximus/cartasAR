@@ -516,6 +516,7 @@ MonoBehaviour:
   iceMaterial: {fileID: 2100000, guid: 9b3a99077bc73a78faa5f3e03fcd5b0d, type: 2}
   tablePrefab: {fileID: 2563337887447157235, guid: aff8c71122ff526469131f6d258a989f,
     type: 3}
+  boton: {fileID: 963961120}
 --- !u!1 &1419218397
 GameObject:
   m_ObjectHideFlags: 0

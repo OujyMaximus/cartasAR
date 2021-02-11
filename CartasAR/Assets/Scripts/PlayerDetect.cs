@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class PlayerDetect : MonoBehaviour
+public class PlayerDetect
 {
     private bool isActive;
     private GameObject[] cardsInstatiated;
@@ -16,22 +16,26 @@ public class PlayerDetect : MonoBehaviour
 
     private Vector2 touchPosition;
 
-    private UnityAction<bool, Image> buttonPlacementPress;
+    private UnityAction<bool, Button> buttonPlacementPress;
     private Func<bool, GameObject[]> buttonSelectCardPress;
 
     private UnityAction checkPlayerTableDistance;
     private UnityAction<Vector2> checkCardSwitching;
 
+    private Button[] buttons;
+
     public PlayerDetect(
-                        UnityAction<bool, Image> buttonPlacementPress,
+                        UnityAction<bool, Button> buttonPlacementPress,
                         Func<bool, GameObject[]> buttonSelectCardPress,
                         UnityAction checkPlayerTableDistance,
-                        UnityAction<Vector2> checkCardSwitching)
+                        UnityAction<Vector2> checkCardSwitching,
+                        Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
         this.buttonSelectCardPress = buttonSelectCardPress;
         this.checkPlayerTableDistance = checkPlayerTableDistance;
         this.checkCardSwitching = checkCardSwitching;
+        this.buttons = buttons;
     }
 
     public void AwakePlayerDetect()
@@ -57,13 +61,12 @@ public class PlayerDetect : MonoBehaviour
     }
 
     public void ConfigureButtons()
-    {
-        Button[] buttons = FindObjectsOfType<Button>();
-
+    {        
         foreach (Button b in buttons)
         {
+            b.onClick.RemoveAllListeners();
             if (b.gameObject.name == "ButtonPlacement")
-                b.onClick.AddListener(ButtonPlacementPress);
+                b.onClick.AddListener(() => ButtonPlacementPress(b));
             else if (b.gameObject.name == "ButtonCard")
                 b.onClick.AddListener(ButtonSelectCardPress);
         }
@@ -73,11 +76,10 @@ public class PlayerDetect : MonoBehaviour
     //BUTTONS METHODS
     //----------------------------------------------
 
-    void ButtonPlacementPress()
+    void ButtonPlacementPress(Button button)
     {
-        Debug.Log("Pulsado");
         isActive = !isActive;
-        buttonPlacementPress?.Invoke(isActive, this.gameObject.GetComponent<Image>());
+        buttonPlacementPress?.Invoke(isActive, button);
     }
 
     //----------------------------------------------

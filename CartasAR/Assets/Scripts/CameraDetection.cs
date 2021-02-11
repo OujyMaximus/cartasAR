@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
-public class CameraDetection : MonoBehaviour
+public class CameraDetection
 {
     private ARRaycastManager arRaycastManager;
     private GameObject tablePrefab;
@@ -29,6 +29,8 @@ public class CameraDetection : MonoBehaviour
         this.playerDetect = playerDetect;
     }
 
+    //----------------------------------------------
+
     public void AwakeCameraDetection()
     {
         screenCenter = new Vector3();
@@ -40,6 +42,10 @@ public class CameraDetection : MonoBehaviour
         if(isPlacementSelected)
             PlaneDetection();
     }
+
+    //----------------------------------------------
+    //METHODS
+    //----------------------------------------------
 
     public void PlaneDetection()
     {
@@ -64,7 +70,7 @@ public class CameraDetection : MonoBehaviour
                     {
                         if (spawnedObject == null)
                         {
-                            spawnedObject = Instantiate(tablePrefab, hitPose.position, hitPose.rotation);
+                            spawnedObject = GameFunctions.Instantiate(tablePrefab, hitPose.position, hitPose.rotation);
                         }
                         else
                         {
@@ -81,10 +87,14 @@ public class CameraDetection : MonoBehaviour
         }
     }
 
+    //----------------------------------------------
+
     public void ChangeIsPlacementSelectedStatus(bool status)
     {
         isPlacementSelected = status;
     }
+
+    //----------------------------------------------
 
     public GameObject GetSpawnedObject() => spawnedObject;
 }

@@ -42,12 +42,14 @@ public class GameFunctions : MonoBehaviour
         arSessionOrigin = this.gameObject;
         arCamera = arCameraGO.GetComponent<Camera>();
         aRTrackedPoseDriver = arCameraGO.GetComponent<TrackedPoseDriver>();
+        Button[] buttons = FindObjectsOfType<Button>();
 
         playerDetect = new PlayerDetect(
                         ButtonPlacementPress,
                         ButtonSelectCardPress,
                         CheckPlayerTableDistance,
-                        CheckCardSwitching);
+                        CheckCardSwitching,
+                        buttons);
 
         playerDetect.AwakePlayerDetect();
 
@@ -65,15 +67,17 @@ public class GameFunctions : MonoBehaviour
     private void Update()
     {
         playerDetect.UpdatePlayerDetect();
-        cameraDetection.UpdateCameraDetection();
+        //cameraDetection.UpdateCameraDetection();
     }
 
     //----------------------------------------------
     //BUTTONS METHODS
     //----------------------------------------------
 
-    public void ButtonPlacementPress(bool isActive, Image image)
+    public void ButtonPlacementPress(bool isActive, Button button)
     {
+        Image image = button.gameObject.GetComponent<Image>();
+
         cameraDetection.ChangeIsPlacementSelectedStatus(isActive);
         if (isActive)
         {
@@ -125,6 +129,19 @@ public class GameFunctions : MonoBehaviour
         }
 
         return cardsInstantiated;
+    }
+
+    //----------------------------------------------
+    //GENERAL METHODS
+    //----------------------------------------------
+
+    public GameObject InstantiatePrefab(GameObject prefab, Vector3 position, Quaternion rotation)
+    {
+        GameObject instance;
+
+        instance = Instantiate(prefab, position, rotation);
+
+        return instance;
     }
 
     //----------------------------------------------
