@@ -407,7 +407,6 @@ GameObject:
   - component: {fileID: 1081879704}
   - component: {fileID: 1081879706}
   - component: {fileID: 1081879707}
-  - component: {fileID: 1081879708}
   - component: {fileID: 1081879709}
   - component: {fileID: 1081879710}
   m_Layer: 0
@@ -472,18 +471,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PlanePrefab: {fileID: 0}
   m_DetectionMode: -1
---- !u!114 &1081879708
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1081879703}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35d0dddcc6c3ad743b6110fd40032ec0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1081879709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -516,7 +503,6 @@ MonoBehaviour:
   iceMaterial: {fileID: 2100000, guid: 9b3a99077bc73a78faa5f3e03fcd5b0d, type: 2}
   tablePrefab: {fileID: 2563337887447157235, guid: aff8c71122ff526469131f6d258a989f,
     type: 3}
-  boton: {fileID: 963961120}
 --- !u!1 &1419218397
 GameObject:
   m_ObjectHideFlags: 0

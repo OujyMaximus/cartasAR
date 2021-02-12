@@ -49,6 +49,7 @@ public class GameFunctions : MonoBehaviour
                         ButtonSelectCardPress,
                         CheckPlayerTableDistance,
                         CheckCardSwitching,
+                        SwitchCardInFront,
                         buttons);
 
         playerDetect.AwakePlayerDetect();
@@ -67,7 +68,20 @@ public class GameFunctions : MonoBehaviour
     private void Update()
     {
         playerDetect.UpdatePlayerDetect();
-        //cameraDetection.UpdateCameraDetection();
+        cameraDetection.UpdateCameraDetection();
+    }
+
+    //----------------------------------------------
+    //GENERAL METHODS
+    //----------------------------------------------
+
+    public GameObject InstantiatePrefab(GameObject prefab, Vector3 position, Quaternion rotation)
+    {
+        GameObject instance;
+
+        instance = Instantiate(prefab, position, rotation);
+
+        return instance;
     }
 
     //----------------------------------------------
@@ -92,9 +106,8 @@ public class GameFunctions : MonoBehaviour
     //----------------------------------------------
 
     //Este metodo se activa al pulsar el boton de mazo y indica si hay que actualizar la posición de las cartas
-    public GameObject[] ButtonSelectCardPress(bool cardSelected)
+    public void ButtonSelectCardPress(bool cardSelected, GameObject[] cardsInstantiated)
     {
-        GameObject[] cardsInstantiated = new GameObject[3];
         Vector3 cardPosition;
         Quaternion cardRotation;
 
@@ -127,21 +140,6 @@ public class GameFunctions : MonoBehaviour
             if (cardsInstantiated[2] != null)
                 Destroy(cardsInstantiated[2]);
         }
-
-        return cardsInstantiated;
-    }
-
-    //----------------------------------------------
-    //GENERAL METHODS
-    //----------------------------------------------
-
-    public GameObject InstantiatePrefab(GameObject prefab, Vector3 position, Quaternion rotation)
-    {
-        GameObject instance;
-
-        instance = Instantiate(prefab, position, rotation);
-
-        return instance;
     }
 
     //----------------------------------------------
@@ -186,11 +184,58 @@ public class GameFunctions : MonoBehaviour
                 if (touch.position.x >= (touchPosition.x + 150))
                 {
                     Debug.Log("Pa la izquierda");
+                    playerDetect.SwitchCardInFront(-1);
                 }
                 if (touch.position.x <= (touchPosition.x - 150))
                 {
                     Debug.Log("Pa la derecha");
+                    playerDetect.SwitchCardInFront(1);
                 }
+            }
+        }
+    }
+
+    //Este metodo se encarga de mover las cartas cuando se detecta un swipe del jugador, direccion sera 1 si va hacia la izquierda y -1 si es hacia la derecha
+    public void SwitchCardInFront(GameObject[] cardsInstantiated, int direction)
+    {
+        int currentCardInFront;
+        float movingDistance;
+
+        currentCardInFront = 0;
+        movingDistance = 0.08f * direction;
+
+        if (!(currentCardInFront == 0 && direction == -1)&&!(currentCardInFront == cardsInstantiated.Length-1 && direction == 1))
+        {
+            /*
+            for (int i = 0; i < cardsInstantiated.Length; i++)
+            {
+                if (cardsInstantiated[i].transform.localPosition.x == 0)
+                {
+                    currentCardInFront = i;
+                    break;
+                }
+            }*/
+
+            float newX, newY, newZ;
+
+            for (int i = 0; i < cardsInstantiated.Length; i++)
+            {
+                newX = cardsInstantiated[i].transform.localPosition.x + movingDistance;
+
+                Debug.Log("NewX: " + newX);
+
+                if (newX < 0.01f && newX > -0.01f)
+                    newZ = 0f;
+                else
+                    newZ = -0.05f;
+
+                Debug.Log("NewY: " + newZ);
+
+                newY = cardsInstantiated[i].transform.localPosition.y;
+
+                Vector3 cardPosition = new Vector3(newX, newY, newZ);
+
+                cardsInstantiated[i].transform.localPosition = cardPosition;
             }
         }
     }

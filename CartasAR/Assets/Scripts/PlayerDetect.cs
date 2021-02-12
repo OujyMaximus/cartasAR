@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -17,24 +18,27 @@ public class PlayerDetect
     private Vector2 touchPosition;
 
     private UnityAction<bool, Button> buttonPlacementPress;
-    private Func<bool, GameObject[]> buttonSelectCardPress;
+    private UnityAction<bool, GameObject[]> buttonSelectCardPress;
 
     private UnityAction checkPlayerTableDistance;
     private UnityAction<Vector2> checkCardSwitching;
+    private UnityAction<GameObject[], int> switchCardInFront;
 
     private Button[] buttons;
 
     public PlayerDetect(
                         UnityAction<bool, Button> buttonPlacementPress,
-                        Func<bool, GameObject[]> buttonSelectCardPress,
+                        UnityAction<bool, GameObject[]> buttonSelectCardPress,
                         UnityAction checkPlayerTableDistance,
                         UnityAction<Vector2> checkCardSwitching,
+                        UnityAction<GameObject[], int> switchCardInFront,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
         this.buttonSelectCardPress = buttonSelectCardPress;
         this.checkPlayerTableDistance = checkPlayerTableDistance;
         this.checkCardSwitching = checkCardSwitching;
+        this.switchCardInFront = switchCardInFront;
         this.buttons = buttons;
     }
 
@@ -44,6 +48,7 @@ public class PlayerDetect
         cardSelected = false;
 
         touchPosition = new Vector2();
+        cardsInstatiated = new GameObject[3];
 
         ConfigureButtons();
     }
@@ -56,8 +61,11 @@ public class PlayerDetect
     public void UpdatePlayerDetect()
     {
         //Aqui habra que poner comprobaciones para que se ejecuten solo en x situaciones
-        //CheckPlayerTableDistance();
-        //CheckCardSwitching();
+        if(isActive)
+            CheckPlayerTableDistance();
+        
+        if(cardSelected)
+            CheckCardSwitching();
     }
 
     public void ConfigureButtons()
@@ -88,7 +96,7 @@ public class PlayerDetect
     public void ButtonSelectCardPress()
     {
         cardSelected = !cardSelected;
-        cardsInstatiated = buttonSelectCardPress?.Invoke(cardSelected);
+        buttonSelectCardPress?.Invoke(cardSelected, cardsInstatiated);
     }
 
     //----------------------------------------------
@@ -117,6 +125,19 @@ public class PlayerDetect
         checkCardSwitching?.Invoke(touchPosition);
     }
 
+    public void SwitchCardInFront(int direction)
+    {
+        cardSelected = !cardSelected;
+        WaitCardSelected(0.5f);
+        switchCardInFront?.Invoke(cardsInstatiated, direction);
+    }
+
     public void SetTouchPosition(Vector2 touchPosition) => this.touchPosition = touchPosition;
+
+    private IEnumerator WaitCardSelected(float s)
+    {
+        yield return new WaitForSeconds(s);
+        cardSelected = !cardSelected;
+    }
 
 }
