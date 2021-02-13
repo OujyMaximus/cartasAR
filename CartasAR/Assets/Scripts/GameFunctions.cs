@@ -179,16 +179,15 @@ public class GameFunctions : MonoBehaviour
             if(touch.phase == TouchPhase.Began)
                 playerDetect.SetTouchPosition(touch.position);
 
-            if (touch.phase == TouchPhase.Moved)
+            if(touch.phase == TouchPhase.Ended)
             {
                 if (touch.position.x >= (touchPosition.x + 150))
                 {
-                    Debug.Log("Pa la izquierda");
                     playerDetect.SwitchCardInFront(-1);
                 }
+
                 if (touch.position.x <= (touchPosition.x - 150))
                 {
-                    Debug.Log("Pa la derecha");
                     playerDetect.SwitchCardInFront(1);
                 }
             }
@@ -198,38 +197,39 @@ public class GameFunctions : MonoBehaviour
     //Este metodo se encarga de mover las cartas cuando se detecta un swipe del jugador, direccion sera 1 si va hacia la izquierda y -1 si es hacia la derecha
     public void SwitchCardInFront(GameObject[] cardsInstantiated, int direction)
     {
+        /*
+         * 
+         * BUGAZO: SI AL PULSAR EL BOTON PRIMERO LE DAS PARA IR A LA IZQUIERDA PETA BASTANTE LOCO, puede que sea por la variable currentCardInFront(?)
+         * 
+         */
+
         int currentCardInFront;
         float movingDistance;
 
         currentCardInFront = 0;
         movingDistance = 0.08f * direction;
 
+        for (int i = 0; i < cardsInstantiated.Length; i++)
+        {
+            if (cardsInstantiated[i].transform.localPosition.x == 0)
+            {
+                currentCardInFront = i;
+                break;
+            }
+        }
+
         if (!(currentCardInFront == 0 && direction == -1)&&!(currentCardInFront == cardsInstantiated.Length-1 && direction == 1))
         {
-            /*
-            for (int i = 0; i < cardsInstantiated.Length; i++)
-            {
-                if (cardsInstantiated[i].transform.localPosition.x == 0)
-                {
-                    currentCardInFront = i;
-                    break;
-                }
-            }*/
-
             float newX, newY, newZ;
 
             for (int i = 0; i < cardsInstantiated.Length; i++)
             {
                 newX = cardsInstantiated[i].transform.localPosition.x + movingDistance;
 
-                Debug.Log("NewX: " + newX);
-
                 if (newX < 0.01f && newX > -0.01f)
                     newZ = 0f;
                 else
                     newZ = -0.05f;
-
-                Debug.Log("NewY: " + newZ);
 
                 newY = cardsInstantiated[i].transform.localPosition.y;
 

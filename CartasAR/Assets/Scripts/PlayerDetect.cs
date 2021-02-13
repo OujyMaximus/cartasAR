@@ -16,6 +16,7 @@ public class PlayerDetect
     private Quaternion cardRotation;
 
     private Vector2 touchPosition;
+    private Touch playerTouch;
 
     private UnityAction<bool, Button> buttonPlacementPress;
     private UnityAction<bool, GameObject[]> buttonSelectCardPress;
@@ -127,8 +128,6 @@ public class PlayerDetect
 
     public void SwitchCardInFront(int direction)
     {
-        cardSelected = !cardSelected;
-        WaitCardSelected(0.5f);
         switchCardInFront?.Invoke(cardsInstatiated, direction);
     }
 
