@@ -6,17 +6,13 @@ using UnityEngine.UI;
 
 public class PlayerDetect
 {
-    private bool isActive;
     private GameObject[] cardsInstatiated;
 
+    private bool isActive;
     private bool cardSelected;
-    private Quaternion playerRotation;
-
-    private Vector3 cardPosition;
-    private Quaternion cardRotation;
+    private bool isCardSelected;
 
     private Vector2 touchPosition;
-    private Touch playerTouch;
 
     private UnityAction<bool, Button> buttonPlacementPress;
     private UnityAction<bool, GameObject[]> buttonSelectCardPress;
@@ -24,6 +20,7 @@ public class PlayerDetect
     private UnityAction checkPlayerTableDistance;
     private UnityAction<Vector2> checkCardSwitching;
     private UnityAction<GameObject[], int> switchCardInFront;
+    private UnityAction<GameObject[]> selectCardInFront;
 
     private Button[] buttons;
 
@@ -33,6 +30,7 @@ public class PlayerDetect
                         UnityAction checkPlayerTableDistance,
                         UnityAction<Vector2> checkCardSwitching,
                         UnityAction<GameObject[], int> switchCardInFront,
+                        UnityAction<GameObject[]> selectCardInFront,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -40,6 +38,7 @@ public class PlayerDetect
         this.checkPlayerTableDistance = checkPlayerTableDistance;
         this.checkCardSwitching = checkCardSwitching;
         this.switchCardInFront = switchCardInFront;
+        this.selectCardInFront = selectCardInFront;
         this.buttons = buttons;
     }
 
@@ -47,6 +46,7 @@ public class PlayerDetect
     {
         isActive = true;
         cardSelected = false;
+        isCardSelected = false;
 
         touchPosition = new Vector2();
         cardsInstatiated = new GameObject[3];
@@ -62,7 +62,7 @@ public class PlayerDetect
     public void UpdatePlayerDetect()
     {
         //Aqui habra que poner comprobaciones para que se ejecuten solo en x situaciones
-        if(isActive)
+        if (isCardSelected)
             CheckPlayerTableDistance();
         
         if(cardSelected)
@@ -85,7 +85,7 @@ public class PlayerDetect
     //BUTTONS METHODS
     //----------------------------------------------
 
-    void ButtonPlacementPress(Button button)
+    public void ButtonPlacementPress(Button button)
     {
         isActive = !isActive;
         buttonPlacementPress?.Invoke(isActive, button);
@@ -107,6 +107,10 @@ public class PlayerDetect
     //----------------------------------------------
 
     public bool GetPlacementIndicatorStatus() => isActive;
+
+    //----------------------------------------------
+
+    public void SetPlacementIndicatorStatus(bool status) => isActive = status;
 
     //----------------------------------------------
     //PLAYER ENVIRONMENT METHODS
@@ -131,12 +135,12 @@ public class PlayerDetect
         switchCardInFront?.Invoke(cardsInstatiated, direction);
     }
 
-    public void SetTouchPosition(Vector2 touchPosition) => this.touchPosition = touchPosition;
-
-    private IEnumerator WaitCardSelected(float s)
+    public void SelectCardInFront()
     {
-        yield return new WaitForSeconds(s);
         cardSelected = !cardSelected;
+        isCardSelected = !isCardSelected;
+        selectCardInFront?.Invoke(cardsInstatiated);
     }
 
+    public void SetTouchPosition(Vector2 touchPosition) => this.touchPosition = touchPosition;
 }

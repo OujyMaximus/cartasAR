@@ -23,19 +23,18 @@ public class GameFunctions : MonoBehaviour
     #endregion
 
     #region PlayerDetect variables
-    private Vector3 playerPosition;
-    private GameObject placedTable;
-    private float distanceTablePlayer;
-    private Vector3 placedTablePosition;
     private bool isPlaced;
-
-    public Material iceMaterial;
     #endregion
 
     #region CameraDetection variables
     private ARRaycastManager arRaycastManager;
     public GameObject tablePrefab;
     #endregion
+
+    public Material iceMaterial;
+    public Material greenMaterial;
+    public Material redMaterial;
+    public Material yellowMaterial;
 
     private void Start()
     {
@@ -50,6 +49,7 @@ public class GameFunctions : MonoBehaviour
                         CheckPlayerTableDistance,
                         CheckCardSwitching,
                         SwitchCardInFront,
+                        SelectCardInFront,
                         buttons);
 
         playerDetect.AwakePlayerDetect();
@@ -113,23 +113,33 @@ public class GameFunctions : MonoBehaviour
 
         if (cardSelected)
         {
+            for(int i = 0; i < cardsInstantiated.Length; i++)
+            {
+                if (cardsInstantiated[i] != null)
+                    Destroy(cardsInstantiated[i]);
+            }
+
             cardPosition = cardPositionGO.transform.position;
             cardRotation = cardPositionGO.transform.rotation;
 
             cardsInstantiated[0] = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
             cardsInstantiated[0].transform.SetParent(cardPositionGO.transform);
+            cardsInstantiated[0].GetComponentInChildren<MeshRenderer>().material = greenMaterial;
 
             Vector3 cardPosition2 = new Vector3(cardsInstantiated[0].transform.localPosition.x - 0.08f, cardsInstantiated[0].transform.localPosition.y, cardsInstantiated[0].transform.localPosition.z - 0.05f);
 
             cardsInstantiated[1] = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
             cardsInstantiated[1].transform.SetParent(cardPositionGO.transform);
             cardsInstantiated[1].transform.localPosition = cardPosition2;
+            cardsInstantiated[1].GetComponentInChildren<MeshRenderer>().material = redMaterial;
 
             Vector3 cardPosition3 = new Vector3(cardsInstantiated[0].transform.localPosition.x - (0.08f * 2), cardsInstantiated[0].transform.localPosition.y, cardsInstantiated[0].transform.localPosition.z - 0.05f);
 
             cardsInstantiated[2] = GameObject.Instantiate(cardPrefab, cardPosition, cardRotation);
             cardsInstantiated[2].transform.SetParent(cardPositionGO.transform);
             cardsInstantiated[2].transform.localPosition = cardPosition3;
+            cardsInstantiated[2].GetComponentInChildren<MeshRenderer>().material = yellowMaterial;
+
         }
         else
         {
@@ -149,19 +159,16 @@ public class GameFunctions : MonoBehaviour
     //Funcion para comprobar la distancia entre el jugador y el tablero, se ejecutara en el Update de PlayerDetect
     public void CheckPlayerTableDistance()
     {
-        playerPosition = aRTrackedPoseDriver.transform.position;
+        Vector3 playerPosition = aRTrackedPoseDriver.transform.position;
 
-        if (isPlaced)
+        GameObject placedTable = cameraDetection.GetSpawnedObject();
+        Vector3 placedTablePosition = placedTable.transform.position;
+
+        float distanceTablePlayer = (placedTablePosition - playerPosition).magnitude;
+
+        if (distanceTablePlayer < 0.5)
         {
-            placedTable = cameraDetection.GetSpawnedObject();
-            placedTablePosition = placedTable.transform.position;
-
-            distanceTablePlayer = (placedTablePosition - playerPosition).magnitude;
-
-            if (distanceTablePlayer < 0.5)
-            {
-                placedTable.GetComponent<MeshRenderer>().material = iceMaterial;
-            }
+            placedTable.GetComponent<MeshRenderer>().material = iceMaterial;
         }
     }
 
@@ -181,14 +188,20 @@ public class GameFunctions : MonoBehaviour
 
             if(touch.phase == TouchPhase.Ended)
             {
-                if (touch.position.x >= (touchPosition.x + 150))
+                if (touch.position.y > 200)
                 {
-                    playerDetect.SwitchCardInFront(-1);
-                }
-
-                if (touch.position.x <= (touchPosition.x - 150))
-                {
-                    playerDetect.SwitchCardInFront(1);
+                    if (touch.position.x >= (touchPosition.x + 150))
+                    {
+                        playerDetect.SwitchCardInFront(-1);
+                    }
+                    else if (touch.position.x <= (touchPosition.x - 150))
+                    {
+                        playerDetect.SwitchCardInFront(1);
+                    }
+                    else
+                    {
+                        playerDetect.SelectCardInFront();
+                    }
                 }
             }
         }
@@ -211,7 +224,7 @@ public class GameFunctions : MonoBehaviour
 
         for (int i = 0; i < cardsInstantiated.Length; i++)
         {
-            if (cardsInstantiated[i].transform.localPosition.x == 0)
+            if (cardsInstantiated[i].transform.localPosition.x < 0.01f && cardsInstantiated[i].transform.localPosition.x > -0.01f)
             {
                 currentCardInFront = i;
                 break;
@@ -232,6 +245,40 @@ public class GameFunctions : MonoBehaviour
                     newZ = -0.05f;
 
                 newY = cardsInstantiated[i].transform.localPosition.y;
+
+                Vector3 cardPosition = new Vector3(newX, newY, newZ);
+
+                cardsInstantiated[i].transform.localPosition = cardPosition;
+            }
+        }
+    }
+
+    public void SelectCardInFront(GameObject[] cardsInstantiated)
+    {
+        int currentCardInFront;
+
+        currentCardInFront = 0;
+
+        for (int i = 0; i < cardsInstantiated.Length; i++)
+        {
+            if (cardsInstantiated[i].transform.localPosition.x < 0.01f && cardsInstantiated[i].transform.localPosition.x > -0.01f)
+            {
+                currentCardInFront = i;
+                break;
+            }
+        }
+
+        for(int i = 0; i < cardsInstantiated.Length; i++)
+        {
+            if (i != currentCardInFront)
+                Destroy(cardsInstantiated[i]);
+            else
+            {
+                float newX, newY, newZ;
+
+                newX = cardsInstantiated[i].transform.localPosition.x;
+                newY = -0.05f;
+                newZ = +0.02f;
 
                 Vector3 cardPosition = new Vector3(newX, newY, newZ);
 

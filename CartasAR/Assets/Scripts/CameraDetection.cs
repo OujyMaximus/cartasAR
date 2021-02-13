@@ -66,16 +66,25 @@ public class CameraDetection
                 Touch touch = Input.GetTouch(0);
                 if (touch.phase == TouchPhase.Began)
                 {
-                    if (playerDetect.GetPlacementIndicatorStatus())
+                    if(touch.position.y > 150)
                     {
-                        if (spawnedObject == null)
+                        if (playerDetect.GetPlacementIndicatorStatus())
                         {
-                            spawnedObject = GameFunctions.Instantiate(tablePrefab, hitPose.position, hitPose.rotation);
-                        }
-                        else
-                        {
-                            spawnedObject.transform.position = hitPose.position;
-                            spawnedObject.transform.rotation = hitPose.rotation;
+                            if (spawnedObject == null)
+                            {
+                                isPlacementSelected = false;
+                                placementIndicator.SetActive(false);
+                                playerDetect.SetPlacementIndicatorStatus(false);
+                                spawnedObject = GameFunctions.Instantiate(tablePrefab, hitPose.position, hitPose.rotation);
+                            }
+                            else
+                            {
+                                isPlacementSelected = false;
+                                placementIndicator.SetActive(false);
+                                playerDetect.SetPlacementIndicatorStatus(false);
+                                spawnedObject.transform.position = hitPose.position;
+                                spawnedObject.transform.rotation = hitPose.rotation;
+                            }
                         }
                     }
                 }
