@@ -500,9 +500,9 @@ MonoBehaviour:
     type: 3}
   arCameraGO: {fileID: 1975412015}
   cardPositionGO: {fileID: 783818437}
-  iceMaterial: {fileID: 2100000, guid: 9b3a99077bc73a78faa5f3e03fcd5b0d, type: 2}
-  tablePrefab: {fileID: 2563337887447157235, guid: aff8c71122ff526469131f6d258a989f,
+  tablePrefab: {fileID: 5633125926009157514, guid: 838b0331c21d4bc4197381e3443c5c62,
     type: 3}
+  iceMaterial: {fileID: 2100000, guid: 9b3a99077bc73a78faa5f3e03fcd5b0d, type: 2}
   greenMaterial: {fileID: 2100000, guid: f2eadf8b8d48ad94884427d0c661c952, type: 2}
   redMaterial: {fileID: 2100000, guid: 13726361bea7f004c83638e3042d725c, type: 2}
   yellowMaterial: {fileID: 2100000, guid: d37701ed26a7b8f438a80d48b8c66cf2, type: 2}

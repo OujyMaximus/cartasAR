@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SpatialTracking;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
 public class CameraDetection
 {
     private ARRaycastManager arRaycastManager;
+    private TrackedPoseDriver aRTrackedPoseDriver;
     private GameObject tablePrefab;
     private GameObject placementIndicator;
 
@@ -19,11 +21,13 @@ public class CameraDetection
 
     public CameraDetection(
                         ARRaycastManager arRaycastManager,
+                        TrackedPoseDriver aRTrackedPoseDriver,
                         GameObject tablePrefab,
                         GameObject placementIndicator,
                         PlayerDetect playerDetect)
     {
         this.arRaycastManager = arRaycastManager;
+        this.aRTrackedPoseDriver = aRTrackedPoseDriver;
         this.tablePrefab = tablePrefab;
         this.placementIndicator = placementIndicator;
         this.playerDetect = playerDetect;
@@ -31,7 +35,7 @@ public class CameraDetection
 
     //----------------------------------------------
 
-    public void AwakeCameraDetection()
+    public void StartCameraDetection()
     {
         screenCenter = new Vector3();
         isPlacementSelected = true;
@@ -41,6 +45,9 @@ public class CameraDetection
     {
         if(isPlacementSelected)
             PlaneDetection();
+
+        if (spawnedObject != null)
+            RotateTableToPlayer();
     }
 
     //----------------------------------------------
@@ -94,6 +101,19 @@ public class CameraDetection
         {
             placementIndicator.SetActive(false);
         }
+    }
+
+    public void RotateTableToPlayer()
+    {
+        Quaternion newRotation;
+        Vector3 tablePosition, devicePosition;
+
+        tablePosition = new Vector3(spawnedObject.transform.position.x, 1, spawnedObject.transform.position.z);
+        devicePosition = new Vector3(aRTrackedPoseDriver.transform.position.x, 1, aRTrackedPoseDriver.transform.position.z);
+        
+        newRotation = Quaternion.LookRotation(devicePosition - tablePosition);
+        
+        spawnedObject.transform.rotation = newRotation;
     }
 
     //----------------------------------------------

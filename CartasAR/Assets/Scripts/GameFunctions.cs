@@ -52,17 +52,18 @@ public class GameFunctions : MonoBehaviour
                         SelectCardInFront,
                         buttons);
 
-        playerDetect.AwakePlayerDetect();
+        playerDetect.StartPlayerDetect();
 
         arRaycastManager = arSessionOrigin.GetComponent<ARRaycastManager>();
 
         cameraDetection = new CameraDetection(
                         arRaycastManager,
+                        aRTrackedPoseDriver,
                         tablePrefab,
                         placementIndicator,
                         playerDetect);
 
-        cameraDetection.AwakeCameraDetection();
+        cameraDetection.StartCameraDetection();
     }
 
     private void Update()
@@ -168,7 +169,7 @@ public class GameFunctions : MonoBehaviour
 
         if (distanceTablePlayer < 0.5)
         {
-            placedTable.GetComponent<MeshRenderer>().material = iceMaterial;
+            placedTable.GetComponentInChildren<MeshRenderer>().material = iceMaterial;
         }
     }
 

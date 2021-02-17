@@ -42,7 +42,7 @@ public class PlayerDetect
         this.buttons = buttons;
     }
 
-    public void AwakePlayerDetect()
+    public void StartPlayerDetect()
     {
         isActive = true;
         cardSelected = false;
@@ -54,14 +54,8 @@ public class PlayerDetect
         ConfigureButtons();
     }
 
-    public void StartPlayerDetect()
-    {
-
-    }
-
     public void UpdatePlayerDetect()
     {
-        //Aqui habra que poner comprobaciones para que se ejecuten solo en x situaciones
         if (isCardSelected)
             CheckPlayerTableDistance();
         
