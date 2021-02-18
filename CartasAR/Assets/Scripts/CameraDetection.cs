@@ -7,6 +7,7 @@ using UnityEngine.XR.ARSubsystems;
 public class CameraDetection
 {
     private ARRaycastManager arRaycastManager;
+    private Camera arCamera;
     private TrackedPoseDriver aRTrackedPoseDriver;
     private GameObject tablePrefab;
     private GameObject placementIndicator;
@@ -20,12 +21,14 @@ public class CameraDetection
     private bool isPlacementSelected;
 
     public CameraDetection(
+                        Camera arCamera,
                         ARRaycastManager arRaycastManager,
                         TrackedPoseDriver aRTrackedPoseDriver,
                         GameObject tablePrefab,
                         GameObject placementIndicator,
                         PlayerDetect playerDetect)
     {
+        this.arCamera = arCamera;
         this.arRaycastManager = arRaycastManager;
         this.aRTrackedPoseDriver = aRTrackedPoseDriver;
         this.tablePrefab = tablePrefab;
@@ -56,7 +59,7 @@ public class CameraDetection
 
     public void PlaneDetection()
     {
-        screenCenter = Camera.current.ViewportToScreenPoint(new Vector3(0.5f, 0.5f));
+        screenCenter = arCamera.ViewportToScreenPoint(new Vector3(0.5f, 0.5f));
 
         if (arRaycastManager.Raycast(screenCenter, s_Hits, TrackableType.Planes))
         {
@@ -68,6 +71,7 @@ public class CameraDetection
             placementIndicator.SetActive(playerDetect.GetPlacementIndicatorStatus());
             placementIndicator.transform.SetPositionAndRotation(hitPose.position, hitPose.rotation);
 
+            
             if (Input.touchCount > 0)
             {
                 Touch touch = Input.GetTouch(0);

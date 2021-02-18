@@ -57,6 +57,7 @@ public class GameFunctions : MonoBehaviour
         arRaycastManager = arSessionOrigin.GetComponent<ARRaycastManager>();
 
         cameraDetection = new CameraDetection(
+                        arCamera,
                         arRaycastManager,
                         aRTrackedPoseDriver,
                         tablePrefab,
