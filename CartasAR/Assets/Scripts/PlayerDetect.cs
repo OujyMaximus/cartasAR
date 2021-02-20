@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class PlayerDetect
 {
-    private GameObject[] cardsInstatiated;
+    private List<GameObject> cardsInstatiated;
 
     private bool isActive;
     private bool cardSelected;
@@ -15,22 +16,22 @@ public class PlayerDetect
     private Vector2 touchPosition;
 
     private UnityAction<bool, Button> buttonPlacementPress;
-    private UnityAction<bool, GameObject[]> buttonSelectCardPress;
+    private UnityAction<bool, List<GameObject>> buttonSelectCardPress;
 
     private UnityAction checkPlayerTableDistance;
     private UnityAction<Vector2> checkCardSwitching;
-    private UnityAction<GameObject[], int> switchCardInFront;
-    private UnityAction<GameObject[]> selectCardInFront;
+    private UnityAction<List<GameObject>, int> switchCardInFront;
+    private UnityAction<List<GameObject>> selectCardInFront;
 
     private Button[] buttons;
 
     public PlayerDetect(
                         UnityAction<bool, Button> buttonPlacementPress,
-                        UnityAction<bool, GameObject[]> buttonSelectCardPress,
+                        UnityAction<bool, List<GameObject>> buttonSelectCardPress,
                         UnityAction checkPlayerTableDistance,
                         UnityAction<Vector2> checkCardSwitching,
-                        UnityAction<GameObject[], int> switchCardInFront,
-                        UnityAction<GameObject[]> selectCardInFront,
+                        UnityAction<List<GameObject>, int> switchCardInFront,
+                        UnityAction<List<GameObject>> selectCardInFront,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -49,7 +50,7 @@ public class PlayerDetect
         isCardSelected = false;
 
         touchPosition = new Vector2();
-        cardsInstatiated = new GameObject[3];
+        cardsInstatiated = new List<GameObject>();
 
         ConfigureButtons();
     }
@@ -131,7 +132,6 @@ public class PlayerDetect
 
     public void SelectCardInFront()
     {
-        cardSelected = !cardSelected;
         isCardSelected = !isCardSelected;
         selectCardInFront?.Invoke(cardsInstatiated);
     }
