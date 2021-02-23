@@ -37,6 +37,26 @@ public class GameFunctions : MonoBehaviour
     public Material redMaterial;
     public Material yellowMaterial;
 
+
+    [SerializeField] private string VersionName = "0.1";
+    [SerializeField] private GameObject ConnectPanel;
+
+    [SerializeField] private InputField CreateGameInput;
+    [SerializeField] private InputField JoinGameInput;
+
+
+    private void Awake()
+    {
+        PhotonNetwork.ConnectUsingSettings("VersionName");
+    }
+
+    private void OnConnectedToMaster()
+    {
+        PhotonNetwork.JoinLobby(TypedLobby.Default);
+        Debug.Log("Connected");
+    }
+
+
     private void Start()
     {
         arSessionOrigin = this.gameObject;
