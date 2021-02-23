@@ -50,6 +50,7 @@ public class GameFunctions : MonoBehaviour
                         CheckCardSwitching,
                         SwitchCardInFront,
                         SelectCardInFront,
+                        SetCardInTable,
                         buttons);
 
         playerDetect.StartPlayerDetect();
@@ -118,6 +119,7 @@ public class GameFunctions : MonoBehaviour
             if (cardsInstantiated.Count > 0)
             {
                 float newX, newZ;
+
                 for(int i=0; i<cardsInstantiated.Count; i++)
                 {
                     newX = -0.08f * i;
@@ -133,26 +135,35 @@ public class GameFunctions : MonoBehaviour
             }
             else
             {
+                int numCartas;
+                float newX, newZ;
+                Vector3 actualCardPosition;
+                List<Material> cardMaterials;
+
+                cardMaterials = new List<Material>();
+                cardMaterials.Add(greenMaterial);
+                cardMaterials.Add(redMaterial);
+                cardMaterials.Add(yellowMaterial);
+
+                numCartas = 3;
                 cardPosition = cardPositionGO.transform.position;
                 cardRotation = cardPositionGO.transform.rotation;
+                
+                for (int i = 0; i < numCartas; i++)
+                {
+                    newX = -0.08f * i;
+                    if (i == 0)
+                        newZ = 0;
+                    else
+                        newZ = -0.05f;
 
-                cardsInstantiated.Add(GameObject.Instantiate(cardPrefab, cardPosition, cardRotation));
-                cardsInstantiated[0].transform.SetParent(cardPositionGO.transform);
-                cardsInstantiated[0].GetComponentInChildren<MeshRenderer>().material = greenMaterial;
+                    actualCardPosition = new Vector3(newX, 0, newZ);
 
-                Vector3 cardPosition2 = new Vector3(cardsInstantiated[0].transform.localPosition.x - 0.08f, cardsInstantiated[0].transform.localPosition.y, cardsInstantiated[0].transform.localPosition.z - 0.05f);
-
-                cardsInstantiated.Add(GameObject.Instantiate(cardPrefab, cardPosition, cardRotation));
-                cardsInstantiated[1].transform.SetParent(cardPositionGO.transform);
-                cardsInstantiated[1].transform.localPosition = cardPosition2;
-                cardsInstantiated[1].GetComponentInChildren<MeshRenderer>().material = redMaterial;
-
-                Vector3 cardPosition3 = new Vector3(cardsInstantiated[0].transform.localPosition.x - (0.08f * 2), cardsInstantiated[0].transform.localPosition.y, cardsInstantiated[0].transform.localPosition.z - 0.05f);
-
-                cardsInstantiated.Add(GameObject.Instantiate(cardPrefab, cardPosition, cardRotation));
-                cardsInstantiated[2].transform.SetParent(cardPositionGO.transform);
-                cardsInstantiated[2].transform.localPosition = cardPosition3;
-                cardsInstantiated[2].GetComponentInChildren<MeshRenderer>().material = yellowMaterial;
+                    cardsInstantiated.Add(GameObject.Instantiate(cardPrefab, cardPosition, cardRotation));
+                    cardsInstantiated[i].transform.SetParent(cardPositionGO.transform);
+                    cardsInstantiated[i].transform.localPosition = actualCardPosition;
+                    cardsInstantiated[i].GetComponentInChildren<MeshRenderer>().material = cardMaterials[i];
+                }
             }
         }
         else
@@ -172,8 +183,8 @@ public class GameFunctions : MonoBehaviour
     public void CheckPlayerTableDistance()
     {
         Vector3 playerPosition = aRTrackedPoseDriver.transform.position;
-
         GameObject placedTable = cameraDetection.GetSpawnedObject();
+
         if (placedTable != null)
         {
             Vector3 placedTablePosition = placedTable.transform.position;
@@ -182,7 +193,8 @@ public class GameFunctions : MonoBehaviour
 
             if (distanceTablePlayer < 0.5)
             {
-                placedTable.GetComponentInChildren<MeshRenderer>().material = iceMaterial;
+                playerDetect.SetCardInTable();
+                //placedTable.GetComponentInChildren<MeshRenderer>().material = iceMaterial;
             }
         }
     }
@@ -302,9 +314,30 @@ public class GameFunctions : MonoBehaviour
         }
     }
 
-    public void SetCardInTable(GameObject cardsInstantiated)
+    public void SetCardInTable(List<GameObject> cardsInstantiated)
     {
+        int numCards;
+        GameObject cardPlacement, cardSelected;
 
+        cardPlacement = GameObject.Find("CardPlacement");
+        numCards = cardsInstantiated.Count;
+        cardSelected = null;
+
+        for (int i = 0; i < numCards; i++)
+        {
+            float x = cardsInstantiated[i].transform.localPosition.x;
+
+            if (x < 0.01f && x > -0.01f)
+            {
+                cardSelected = cardsInstantiated[i];
+                cardsInstantiated.RemoveAt(i);
+                break;
+            }
+        }
+
+        cardSelected.transform.SetParent(cardPlacement.transform);
+        cardSelected.transform.localPosition = Vector3.zero;
+        cardSelected.transform.rotation = new Quaternion(90f, 0f, 0f, 1f);
     }
 
     //----------------------------------------------

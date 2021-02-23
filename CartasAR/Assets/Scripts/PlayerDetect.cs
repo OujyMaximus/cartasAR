@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class PlayerDetect
 {
-    private List<GameObject> cardsInstatiated;
+    private List<GameObject> cardsInstantiated;
 
     private bool isActive;
     private bool cardSelected;
@@ -22,6 +22,7 @@ public class PlayerDetect
     private UnityAction<Vector2> checkCardSwitching;
     private UnityAction<List<GameObject>, int> switchCardInFront;
     private UnityAction<List<GameObject>> selectCardInFront;
+    private UnityAction<List<GameObject>> setCardInTable;
 
     private Button[] buttons;
 
@@ -32,6 +33,7 @@ public class PlayerDetect
                         UnityAction<Vector2> checkCardSwitching,
                         UnityAction<List<GameObject>, int> switchCardInFront,
                         UnityAction<List<GameObject>> selectCardInFront,
+                        UnityAction<List<GameObject>> setCardInTable,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -40,6 +42,7 @@ public class PlayerDetect
         this.checkCardSwitching = checkCardSwitching;
         this.switchCardInFront = switchCardInFront;
         this.selectCardInFront = selectCardInFront;
+        this.setCardInTable = setCardInTable;
         this.buttons = buttons;
     }
 
@@ -50,7 +53,7 @@ public class PlayerDetect
         isCardSelected = false;
 
         touchPosition = new Vector2();
-        cardsInstatiated = new List<GameObject>();
+        cardsInstantiated = new List<GameObject>();
 
         ConfigureButtons();
     }
@@ -92,7 +95,7 @@ public class PlayerDetect
     public void ButtonSelectCardPress()
     {
         cardSelected = !cardSelected;
-        buttonSelectCardPress?.Invoke(cardSelected, cardsInstatiated);
+        buttonSelectCardPress?.Invoke(cardSelected, cardsInstantiated);
     }
 
     //----------------------------------------------
@@ -127,13 +130,20 @@ public class PlayerDetect
 
     public void SwitchCardInFront(int direction)
     {
-        switchCardInFront?.Invoke(cardsInstatiated, direction);
+        switchCardInFront?.Invoke(cardsInstantiated, direction);
     }
 
     public void SelectCardInFront()
     {
         isCardSelected = !isCardSelected;
-        selectCardInFront?.Invoke(cardsInstatiated);
+        selectCardInFront?.Invoke(cardsInstantiated);
+    }
+
+    public void SetCardInTable()
+    {
+        isCardSelected = !isCardSelected;
+        cardSelected = !cardSelected;
+        setCardInTable?.Invoke(cardsInstantiated);
     }
 
     public void SetTouchPosition(Vector2 touchPosition) => this.touchPosition = touchPosition;
