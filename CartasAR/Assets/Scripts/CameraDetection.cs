@@ -49,8 +49,8 @@ public class CameraDetection
         if(isPlacementSelected)
             PlaneDetection();
 
-        if (spawnedObject != null)
-            RotateTableToPlayer();
+        //if (spawnedObject != null)
+            //RotateTableToPlayer();
     }
 
     //----------------------------------------------

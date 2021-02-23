@@ -95,6 +95,7 @@ public class PlayerDetect
     public void ButtonSelectCardPress()
     {
         cardSelected = !cardSelected;
+        isCardSelected = false;
         buttonSelectCardPress?.Invoke(cardSelected, cardsInstantiated);
     }
 
@@ -136,13 +137,13 @@ public class PlayerDetect
     public void SelectCardInFront()
     {
         isCardSelected = !isCardSelected;
+        cardSelected = !cardSelected;
         selectCardInFront?.Invoke(cardsInstantiated);
     }
 
     public void SetCardInTable()
     {
         isCardSelected = !isCardSelected;
-        cardSelected = !cardSelected;
         setCardInTable?.Invoke(cardsInstantiated);
     }
 

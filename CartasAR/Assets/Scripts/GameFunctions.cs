@@ -15,6 +15,7 @@ public class GameFunctions : MonoBehaviour
     #region Scene GameObject variables
     public GameObject placementIndicator;
     public GameObject cardPrefab;
+    public GameObject cardPoser;
     private GameObject arSessionOrigin;
     public GameObject arCameraGO;
     private Camera arCamera;
@@ -114,6 +115,9 @@ public class GameFunctions : MonoBehaviour
         Vector3 cardPosition;
         Quaternion cardRotation;
 
+        if (GameObject.FindGameObjectWithTag("CardPoser") != null)
+            Destroy(GameObject.FindGameObjectWithTag("CardPoser"));
+
         if (cardSelected)
         {
             if (cardsInstantiated.Count > 0)
@@ -184,17 +188,17 @@ public class GameFunctions : MonoBehaviour
     {
         Vector3 playerPosition = aRTrackedPoseDriver.transform.position;
         GameObject placedTable = cameraDetection.GetSpawnedObject();
+        GameObject cardPoserInstantiated = GameObject.FindWithTag("CardPoser");
 
         if (placedTable != null)
         {
-            Vector3 placedTablePosition = placedTable.transform.position;
+            Vector3 cardPoserPosition = cardPoserInstantiated.transform.position;
 
-            float distanceTablePlayer = (placedTablePosition - playerPosition).magnitude;
+            float distanceCardPoserToPlayer = (cardPoserPosition - playerPosition).magnitude;
 
-            if (distanceTablePlayer < 0.5)
+            if (distanceCardPoserToPlayer < 0.2)
             {
                 playerDetect.SetCardInTable();
-                //placedTable.GetComponentInChildren<MeshRenderer>().material = iceMaterial;
             }
         }
     }
@@ -280,6 +284,35 @@ public class GameFunctions : MonoBehaviour
         }
     }
 
+    private void SetCardPoser()
+    {
+        float posX, cardPlacementNumChildren, multiplier;
+        GameObject cardPlacement, cardPoserInstantiated;
+
+        cardPlacement = GameObject.Find("CardPlacement");
+        cardPoserInstantiated = GameObject.Instantiate(cardPoser);
+
+        cardPoserInstantiated.transform.SetParent(cardPlacement.transform);
+        cardPoserInstantiated.transform.localPosition = Vector3.zero;
+        cardPoserInstantiated.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+
+        cardPlacementNumChildren = cardPlacement.transform.childCount;
+        Debug.Log("NumChildren: " + cardPlacementNumChildren);
+
+        if ((cardPlacementNumChildren-1) % 2 == 0)
+            multiplier = -1;
+        else
+            multiplier = 1;
+
+        posX = Mathf.CeilToInt((cardPlacementNumChildren - 1)/2);
+        Debug.Log("PosX before: " + posX);
+        posX = posX * (0.12f * multiplier);
+
+        Debug.Log("PosX: " + posX);
+
+        cardPoserInstantiated.transform.localPosition = new Vector3(posX, 0f, 0f);
+    }
+
     public void SelectCardInFront(List<GameObject> cardsInstantiated)
     {
         int currentCardInFront;
@@ -294,6 +327,8 @@ public class GameFunctions : MonoBehaviour
                 break;
             }
         }
+
+        SetCardPoser();
 
         for(int i = 0; i < cardsInstantiated.Count; i++)
         {
@@ -317,9 +352,10 @@ public class GameFunctions : MonoBehaviour
     public void SetCardInTable(List<GameObject> cardsInstantiated)
     {
         int numCards;
-        GameObject cardPlacement, cardSelected;
+        GameObject cardPlacement, cardSelected, cardPoser;
 
         cardPlacement = GameObject.Find("CardPlacement");
+        cardPoser = GameObject.FindGameObjectWithTag("CardPoser");
         numCards = cardsInstantiated.Count;
         cardSelected = null;
 
@@ -336,8 +372,9 @@ public class GameFunctions : MonoBehaviour
         }
 
         cardSelected.transform.SetParent(cardPlacement.transform);
-        cardSelected.transform.localPosition = Vector3.zero;
-        cardSelected.transform.rotation = new Quaternion(90f, 0f, 0f, 1f);
+        cardSelected.transform.localPosition = cardPoser.transform.localPosition;
+        cardSelected.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+        Destroy(cardPoser);
     }
 
     //----------------------------------------------
