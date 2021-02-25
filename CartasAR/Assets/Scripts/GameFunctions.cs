@@ -72,6 +72,7 @@ public class GameFunctions : MonoBehaviour
                         SwitchCardInFront,
                         SelectCardInFront,
                         SetCardInTable,
+                        SetOpositeCardInTable,
                         buttons);
 
         playerDetect.StartPlayerDetect();
@@ -107,6 +108,8 @@ public class GameFunctions : MonoBehaviour
 
         return instance;
     }
+
+    public GameObject GetCardPrefab() => cardPrefab;
 
     //----------------------------------------------
     //BUTTONS METHODS
@@ -371,13 +374,14 @@ public class GameFunctions : MonoBehaviour
 
     public void SetCardInTable(List<GameObject> cardsInstantiated)
     {
-        int numCards;
+        int numCards, cardToSet;
         GameObject cardPlacement, cardSelected, cardPoser;
 
         cardPlacement = GameObject.Find("CardPlacement");
         cardPoser = GameObject.FindGameObjectWithTag("CardPoser");
         numCards = cardsInstantiated.Count;
         cardSelected = null;
+        cardToSet = -1;
 
         for (int i = 0; i < numCards; i++)
         {
@@ -385,6 +389,7 @@ public class GameFunctions : MonoBehaviour
 
             if (x < 0.01f && x > -0.01f)
             {
+                cardToSet = i;
                 cardSelected = cardsInstantiated[i];
                 cardsInstantiated.RemoveAt(i);
                 break;
@@ -395,6 +400,23 @@ public class GameFunctions : MonoBehaviour
         cardSelected.transform.localPosition = cardPoser.transform.localPosition;
         cardSelected.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
         Destroy(cardPoser);
+        GameObject.Find("MenuController").GetComponent<MenuController>().SendCardSetInTable(cardToSet);
+    }
+
+    public void SetOpositeCardInTable(int id)
+    {
+        GameObject card, opositeCardPlacement;
+        List<Material> cardMaterials;
+
+        opositeCardPlacement = GameObject.Find("OpositeCardPlacement");
+        card = GameObject.Instantiate(cardPrefab, opositeCardPlacement.transform.position, opositeCardPlacement.transform.rotation);
+        
+        cardMaterials = new List<Material>();
+        cardMaterials.Add(greenMaterial);
+        cardMaterials.Add(redMaterial);
+        cardMaterials.Add(yellowMaterial);
+
+        card.GetComponentInChildren<MeshRenderer>().material = cardMaterials[id];
     }
 
     //----------------------------------------------

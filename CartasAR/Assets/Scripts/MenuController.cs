@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class MenuController : MonoBehaviour
@@ -10,8 +11,13 @@ public class MenuController : MonoBehaviour
     [SerializeField] private GameObject ConnectPanel;
 
     [SerializeField] private InputField CreateGameInput;
+    [SerializeField] private Text createGameErrorText;
     [SerializeField] private InputField JoinGameInput;
+    [SerializeField] private Text joinGameErrorText;
 
+    private UnityAction<int> setCardInTable;
+
+    private PhotonView photonView;
 
     private void Awake()
     {
@@ -20,7 +26,7 @@ public class MenuController : MonoBehaviour
 
     private void Start()
     {
-
+        photonView = GetComponent<PhotonView>();
     }
 
     private void OnConnectedToMaster()
@@ -31,18 +37,55 @@ public class MenuController : MonoBehaviour
 
     public void CreateGame()
     {
-        PhotonNetwork.CreateRoom(CreateGameInput.text, new RoomOptions { maxPlayers = 2}, null);
+        if (CreateGameInput != null && CreateGameInput.text != "")
+            PhotonNetwork.CreateRoom(CreateGameInput.text, new RoomOptions { MaxPlayers = 2 }, null);
+        else
+        {
+            createGameErrorText.text = "Debes introducir una ID de sala";
+            createGameErrorText.gameObject.SetActive(true);
+        }
     }
 
     public void JoinGame()
     {
-        RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = 2;
-        PhotonNetwork.JoinOrCreateRoom(JoinGameInput.text, roomOptions, TypedLobby.Default);
+        bool succed;
+
+        if (JoinGameInput != null && JoinGameInput.text != "")
+        {
+            succed = PhotonNetwork.JoinRoom(JoinGameInput.text);
+
+        }
+        else
+        {
+            joinGameErrorText.text = "Debes introducir una ID de sala";
+            joinGameErrorText.gameObject.SetActive(true);
+        }
+    }
+
+    public void OnPhotonJoinRoomFailed()
+    {
+        joinGameErrorText.text = "No existe una sala con esa ID";
     }
 
     private void OnJoinedRoom()
     {
         GameObject.Find("MainMenuCanvas").SetActive(false);
+    }
+
+    public void SendCardSetInTable(int id)
+    {
+        photonView.RPC("SetCardInTable", PhotonTargets.Others, id);
+    }
+
+    [PunRPC]
+    public void SetCardInTable(int id)
+    {
+        Debug.Log("Hey");
+        setCardInTable.Invoke(id);
+    }
+
+    public void SetSetCardInTable(UnityAction<int> setCardInTable)
+    {
+        this.setCardInTable = setCardInTable;
     }
 }

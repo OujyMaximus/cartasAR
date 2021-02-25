@@ -23,6 +23,7 @@ public class PlayerDetect
     private UnityAction<List<GameObject>, int> switchCardInFront;
     private UnityAction<List<GameObject>> selectCardInFront;
     private UnityAction<List<GameObject>> setCardInTable;
+    private UnityAction<int> setOpositeCardInTable;
 
     private Button[] buttons;
 
@@ -34,6 +35,7 @@ public class PlayerDetect
                         UnityAction<List<GameObject>, int> switchCardInFront,
                         UnityAction<List<GameObject>> selectCardInFront,
                         UnityAction<List<GameObject>> setCardInTable,
+                        UnityAction<int> setOpositeCardInTable,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -43,6 +45,7 @@ public class PlayerDetect
         this.switchCardInFront = switchCardInFront;
         this.selectCardInFront = selectCardInFront;
         this.setCardInTable = setCardInTable;
+        this.setOpositeCardInTable = setOpositeCardInTable;
         this.buttons = buttons;
     }
 
@@ -56,6 +59,8 @@ public class PlayerDetect
         cardsInstantiated = new List<GameObject>();
 
         ConfigureButtons();
+
+        GameObject.Find("MenuController").GetComponent<MenuController>().SetSetCardInTable(SetOpositeCardInTable);
     }
 
     public void UpdatePlayerDetect()
@@ -145,6 +150,11 @@ public class PlayerDetect
     {
         isCardSelected = !isCardSelected;
         setCardInTable?.Invoke(cardsInstantiated);
+    }
+
+    public void SetOpositeCardInTable(int id)
+    {
+        setOpositeCardInTable.Invoke(id);
     }
 
     public void SetTouchPosition(Vector2 touchPosition) => this.touchPosition = touchPosition;

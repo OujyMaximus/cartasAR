@@ -43,4 +43,6 @@ MonoBehaviour:
   - RequestForPickupItems
   - RequestForPickupTimes
   - TaggedPlayer
+  - SendCardSetInTable
+  - SetCardInTable
   DisableAutoOpenWizard: 1
