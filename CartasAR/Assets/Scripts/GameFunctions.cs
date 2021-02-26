@@ -37,14 +37,6 @@ public class GameFunctions : MonoBehaviour
     public Material redMaterial;
     public Material yellowMaterial;
 
-
-    [SerializeField] private string VersionName = "0.1";
-    [SerializeField] private GameObject ConnectPanel;
-
-    [SerializeField] private InputField CreateGameInput;
-    [SerializeField] private InputField JoinGameInput;
-
-
     private void Awake()
     {
         PhotonNetwork.ConnectUsingSettings("VersionName");
@@ -307,17 +299,9 @@ public class GameFunctions : MonoBehaviour
         }
     }
 
-    private void SetCardPoser()
+    private float CalculateCardPoserPosition(GameObject cardPlacement)
     {
         float posX, cardPlacementNumChildren, multiplier;
-        GameObject cardPlacement, cardPoserInstantiated;
-
-        cardPlacement = GameObject.Find("CardPlacement");
-        cardPoserInstantiated = GameObject.Instantiate(cardPoser);
-
-        cardPoserInstantiated.transform.SetParent(cardPlacement.transform);
-        cardPoserInstantiated.transform.localPosition = Vector3.zero;
-        cardPoserInstantiated.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
 
         cardPlacementNumChildren = cardPlacement.transform.childCount;
         Debug.Log("NumChildren: " + cardPlacementNumChildren);
@@ -328,17 +312,15 @@ public class GameFunctions : MonoBehaviour
             multiplier = 1;
 
         posX = Mathf.CeilToInt((cardPlacementNumChildren - 1)/2);
-        Debug.Log("PosX before: " + posX);
         posX = posX * (0.12f * multiplier);
 
-        Debug.Log("PosX: " + posX);
-
-        cardPoserInstantiated.transform.localPosition = new Vector3(posX, 0f, 0f);
+        return posX;
     }
 
     public void SelectCardInFront(List<GameObject> cardsInstantiated)
     {
         int currentCardInFront;
+        GameObject cardPlacement, cardPoserInstantiated;
 
         currentCardInFront = 0;
 
@@ -351,9 +333,21 @@ public class GameFunctions : MonoBehaviour
             }
         }
 
-        SetCardPoser();
+        {
+            float posX;
 
-        for(int i = 0; i < cardsInstantiated.Count; i++)
+            cardPlacement = GameObject.Find("CardPlacement");
+            cardPoserInstantiated = GameObject.Instantiate(cardPoser);
+
+            cardPoserInstantiated.transform.SetParent(cardPlacement.transform);
+            cardPoserInstantiated.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+
+            posX = CalculateCardPoserPosition(cardPlacement);
+
+            cardPoserInstantiated.transform.localPosition = new Vector3(posX, 0f, 0f);
+        }
+
+        for (int i = 0; i < cardsInstantiated.Count; i++)
         {
             if (i != currentCardInFront)
                 cardsInstantiated[i].SetActive(false);
@@ -405,18 +399,31 @@ public class GameFunctions : MonoBehaviour
 
     public void SetOpositeCardInTable(int id)
     {
+        float posX;
         GameObject card, opositeCardPlacement;
         List<Material> cardMaterials;
 
         opositeCardPlacement = GameObject.Find("OpositeCardPlacement");
-        card = GameObject.Instantiate(cardPrefab, opositeCardPlacement.transform.position, opositeCardPlacement.transform.rotation);
-        
-        cardMaterials = new List<Material>();
-        cardMaterials.Add(greenMaterial);
-        cardMaterials.Add(redMaterial);
-        cardMaterials.Add(yellowMaterial);
+        card = GameObject.Instantiate(cardPrefab);
 
-        card.GetComponentInChildren<MeshRenderer>().material = cardMaterials[id];
+        {
+            card.transform.SetParent(opositeCardPlacement.transform);
+            card.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+
+            posX = CalculateCardPoserPosition(opositeCardPlacement);
+
+            card.transform.localPosition = new Vector3(posX, 0f, 0f);
+        }
+
+        //Esto se quitara cuando se haga la BBDD de las cartas
+        {
+            cardMaterials = new List<Material>();
+            cardMaterials.Add(greenMaterial);
+            cardMaterials.Add(redMaterial);
+            cardMaterials.Add(yellowMaterial);
+
+            card.GetComponentInChildren<MeshRenderer>().material = cardMaterials[id];
+        }
     }
 
     //----------------------------------------------

@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class MenuController : MonoBehaviour
 {
+    //AppId: a7ca51f2-e429-4447-8e3d-c74ac3d4e958
 
     [SerializeField] private string VersionName = "0.1";
     [SerializeField] private GameObject ConnectPanel;
@@ -21,7 +22,7 @@ public class MenuController : MonoBehaviour
 
     private void Awake()
     {
-        PhotonNetwork.ConnectUsingSettings("VersionName");
+        PhotonNetwork.ConnectUsingSettings(VersionName);
     }
 
     private void Start()
