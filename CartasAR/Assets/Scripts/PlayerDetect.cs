@@ -94,7 +94,7 @@ public class PlayerDetect
         buttonPlacementPress?.Invoke(isActive, button);
     }
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     //Este metodo se activa al pulsar el boton de mazo y indica si hay que actualizar la posición de las cartas
     public void ButtonSelectCardPress()
@@ -104,15 +104,15 @@ public class PlayerDetect
         buttonSelectCardPress?.Invoke(cardSelected, cardsInstantiated);
     }
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     public bool GetCardSelectStatus() => cardSelected;
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     public bool GetPlacementIndicatorStatus() => isActive;
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     public void SetPlacementIndicatorStatus(bool status) => isActive = status;
 
@@ -134,10 +134,14 @@ public class PlayerDetect
         checkCardSwitching?.Invoke(touchPosition);
     }
 
+    //-----------------------------------------------------------------------------
+
     public void SwitchCardInFront(int direction)
     {
         switchCardInFront?.Invoke(cardsInstantiated, direction);
     }
+
+    //-----------------------------------------------------------------------------
 
     public void SelectCardInFront()
     {
@@ -146,11 +150,15 @@ public class PlayerDetect
         selectCardInFront?.Invoke(cardsInstantiated);
     }
 
+    //-----------------------------------------------------------------------------
+
     public void SetCardInTable()
     {
         isCardSelected = !isCardSelected;
         setCardInTable?.Invoke(cardsInstantiated);
     }
+
+    //-----------------------------------------------------------------------------
 
     public void SetOpositeCardInTable(int id)
     {

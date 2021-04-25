@@ -4,12 +4,14 @@ using UnityEngine;
 using UnityEngine.SpatialTracking;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
+using System.Linq;
 
 public class GameFunctions : MonoBehaviour
 {
     #region Scripts variables
     private CameraDetection cameraDetection;
     private PlayerDetect playerDetect;
+    private MenuController menuController;
     #endregion
 
     #region Scene GameObject variables
@@ -36,6 +38,8 @@ public class GameFunctions : MonoBehaviour
     public Material greenMaterial;
     public Material redMaterial;
     public Material yellowMaterial;
+
+    public static Dictionary<Material, int> cardMaterials = new Dictionary<Material, int>();
 
     private void Awake()
     {
@@ -80,12 +84,16 @@ public class GameFunctions : MonoBehaviour
                         playerDetect);
 
         cameraDetection.StartCameraDetection();
+
+        menuController = GameObject.Find("MenuController").GetComponent<MenuController>();
     }
 
     private void Update()
     {
         playerDetect.UpdatePlayerDetect();
-        cameraDetection.UpdateCameraDetection();
+
+        if(!menuController.GetIsMenuActive())
+            cameraDetection.UpdateCameraDetection();
     }
 
     //----------------------------------------------
@@ -122,7 +130,7 @@ public class GameFunctions : MonoBehaviour
         }
     }
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     //Este metodo se activa al pulsar el boton de mazo y indica si hay que actualizar la posición de las cartas
     public void ButtonSelectCardPress(bool cardSelected, List<GameObject> cardsInstantiated)
@@ -299,6 +307,8 @@ public class GameFunctions : MonoBehaviour
         }
     }
 
+    //-----------------------------------------------------------------------------
+
     private float CalculateCardPoserPosition(GameObject cardPlacement)
     {
         float posX, cardPlacementNumChildren, multiplier;
@@ -316,6 +326,8 @@ public class GameFunctions : MonoBehaviour
 
         return posX;
     }
+
+    //-----------------------------------------------------------------------------
 
     public void SelectCardInFront(List<GameObject> cardsInstantiated)
     {
@@ -366,6 +378,8 @@ public class GameFunctions : MonoBehaviour
         }
     }
 
+    //-----------------------------------------------------------------------------
+
     public void SetCardInTable(List<GameObject> cardsInstantiated)
     {
         int numCards, cardToSet;
@@ -383,7 +397,7 @@ public class GameFunctions : MonoBehaviour
 
             if (x < 0.01f && x > -0.01f)
             {
-                cardToSet = i;
+                cardMaterials.TryGetValue(cardsInstantiated[i].GetComponentInChildren<MeshRenderer>().material, out cardToSet);
                 cardSelected = cardsInstantiated[i];
                 cardsInstantiated.RemoveAt(i);
                 break;
@@ -397,11 +411,12 @@ public class GameFunctions : MonoBehaviour
         GameObject.Find("MenuController").GetComponent<MenuController>().SendCardSetInTable(cardToSet);
     }
 
+    //-----------------------------------------------------------------------------
+
     public void SetOpositeCardInTable(int id)
     {
         float posX;
         GameObject card, opositeCardPlacement;
-        List<Material> cardMaterials;
 
         opositeCardPlacement = GameObject.Find("OpositeCardPlacement");
         card = GameObject.Instantiate(cardPrefab);
@@ -415,14 +430,8 @@ public class GameFunctions : MonoBehaviour
             card.transform.localPosition = new Vector3(posX, 0f, 0f);
         }
 
-        //Esto se quitara cuando se haga la BBDD de las cartas
         {
-            cardMaterials = new List<Material>();
-            cardMaterials.Add(greenMaterial);
-            cardMaterials.Add(redMaterial);
-            cardMaterials.Add(yellowMaterial);
-
-            card.GetComponentInChildren<MeshRenderer>().material = cardMaterials[id];
+            card.GetComponentInChildren<MeshRenderer>().material = (Material)cardMaterials.Where(x => cardMaterials.Values.Contains(x.Value)).Select(x => x.Key);
         }
     }
 

@@ -20,9 +20,14 @@ public class MenuController : MonoBehaviour
 
     private PhotonView photonView;
 
+    private bool isGameStarted;
+    private bool isMenuActive;
+
     private void Awake()
     {
         PhotonNetwork.ConnectUsingSettings(VersionName);
+        isGameStarted = false;
+        isMenuActive = true;
     }
 
     private void Start()
@@ -30,22 +35,31 @@ public class MenuController : MonoBehaviour
         photonView = GetComponent<PhotonView>();
     }
 
+    //-----------------------------------------------------------------------------
+
     private void OnConnectedToMaster()
     {
         PhotonNetwork.JoinLobby(TypedLobby.Default);
         Debug.Log("Connected");
     }
 
+    //-----------------------------------------------------------------------------
+
     public void CreateGame()
     {
         if (CreateGameInput != null && CreateGameInput.text != "")
-            PhotonNetwork.CreateRoom(CreateGameInput.text, new RoomOptions { MaxPlayers = 2 }, null);
+        {
+            PhotonNetwork.CreateRoom(CreateGameInput.text, new RoomOptions { MaxPlayers = 0 }, null);
+            GameObject.Find("StartGame").SetActive(true);
+        }
         else
         {
             createGameErrorText.text = "Debes introducir una ID de sala";
             createGameErrorText.gameObject.SetActive(true);
         }
     }
+
+    //-----------------------------------------------------------------------------
 
     public void JoinGame()
     {
@@ -54,7 +68,6 @@ public class MenuController : MonoBehaviour
         if (JoinGameInput != null && JoinGameInput.text != "")
         {
             succed = PhotonNetwork.JoinRoom(JoinGameInput.text);
-
         }
         else
         {
@@ -63,20 +76,36 @@ public class MenuController : MonoBehaviour
         }
     }
 
+    //-----------------------------------------------------------------------------
+
+    public void StartGame()
+    {
+        isGameStarted = true;
+    }
+
+    //-----------------------------------------------------------------------------
+
     public void OnPhotonJoinRoomFailed()
     {
         joinGameErrorText.text = "No existe una sala con esa ID";
     }
 
+    //-----------------------------------------------------------------------------
+
     private void OnJoinedRoom()
     {
         GameObject.Find("MainMenuCanvas").SetActive(false);
+        isMenuActive = false;
     }
+
+    //-----------------------------------------------------------------------------
 
     public void SendCardSetInTable(int id)
     {
         photonView.RPC("SetCardInTable", PhotonTargets.Others, id);
     }
+
+    //-----------------------------------------------------------------------------
 
     [PunRPC]
     public void SetCardInTable(int id)
@@ -85,8 +114,18 @@ public class MenuController : MonoBehaviour
         setCardInTable.Invoke(id);
     }
 
+    //-----------------------------------------------------------------------------
+
     public void SetSetCardInTable(UnityAction<int> setCardInTable)
     {
         this.setCardInTable = setCardInTable;
     }
+
+    //-----------------------------------------------------------------------------
+
+    public bool GetIsGameStarted() => isGameStarted;
+
+    //-----------------------------------------------------------------------------
+
+    public bool GetIsMenuActive() => isMenuActive;
 }
