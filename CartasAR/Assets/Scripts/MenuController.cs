@@ -17,17 +17,32 @@ public class MenuController : MonoBehaviour
     [SerializeField] private Text joinGameErrorText;
 
     private UnityAction<int> setCardInTable;
+    private UnityAction<int> addCardToDeck;
 
     private PhotonView photonView;
 
     private bool isGameStarted;
     private bool isMenuActive;
 
+    private int currentPlayerTurn;
+    private List<int> playerIDs;
+
+    private GameObject startGameGO;
+    private GameObject giveCardGO;
+
     private void Awake()
     {
         PhotonNetwork.ConnectUsingSettings(VersionName);
         isGameStarted = false;
         isMenuActive = true;
+        currentPlayerTurn = 0;
+        playerIDs = new List<int>();
+
+        startGameGO = GameObject.Find("StartGame");
+        giveCardGO = GameObject.Find("GiveCard");
+
+        startGameGO.SetActive(false);
+        giveCardGO.SetActive(false);
     }
 
     private void Start()
@@ -49,8 +64,8 @@ public class MenuController : MonoBehaviour
     {
         if (CreateGameInput != null && CreateGameInput.text != "")
         {
-            PhotonNetwork.CreateRoom(CreateGameInput.text, new RoomOptions { MaxPlayers = 0 }, null);
-            GameObject.Find("StartGame").SetActive(true);
+            PhotonNetwork.CreateRoom(CreateGameInput.text, new RoomOptions { MaxPlayers = 0 , PublishUserId = true}, null);
+            startGameGO.SetActive(true);
         }
         else
         {
@@ -81,6 +96,17 @@ public class MenuController : MonoBehaviour
     public void StartGame()
     {
         isGameStarted = true;
+
+        PhotonPlayer[] playerList = PhotonNetwork.playerList;
+
+        for(int i = 0; i < playerList.Length; i++)
+        {
+            Debug.Log("playerList[i].ID: " + playerList[i].ID);
+            playerIDs.Add(playerList[i].ID);
+        }
+
+        startGameGO.SetActive(false);
+        giveCardGO.SetActive(true);
     }
 
     //-----------------------------------------------------------------------------
@@ -94,7 +120,7 @@ public class MenuController : MonoBehaviour
 
     private void OnJoinedRoom()
     {
-        GameObject.Find("MainMenuCanvas").SetActive(false);
+        GameObject.Find("MainMenu").SetActive(false);
         isMenuActive = false;
     }
 
@@ -107,11 +133,39 @@ public class MenuController : MonoBehaviour
 
     //-----------------------------------------------------------------------------
 
+    public void GiveCardToPlayer()
+    {
+        //ESTO NO FUNCIONA JEJE NO SE QUE MIERDAS LE PASA XD
+        List<Material> materialsList = new List<Material>(GameFunctions.cardMaterials.Keys);
+        System.Random rand = new System.Random();
+
+        Material randomMaterial = materialsList[rand.Next(materialsList.Count)];
+
+        int index;
+        GameFunctions.cardMaterials.TryGetValue(randomMaterial, out index);
+
+        GameFunctions.cardMaterials.Remove(randomMaterial);
+        GameFunctions.cardMaterialsPlayed.Add(randomMaterial, index);
+
+        currentPlayerTurn = (currentPlayerTurn + 1) % (playerIDs.Count - 1);
+
+        photonView.RPC("AddCardToDeck", PhotonPlayer.Find(playerIDs[currentPlayerTurn]), index);
+    }
+
+    //-----------------------------------------------------------------------------
+
     [PunRPC]
     public void SetCardInTable(int id)
     {
-        Debug.Log("Hey");
         setCardInTable.Invoke(id);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    [PunRPC]
+    public void AddCardToDeck(int id)
+    {
+        addCardToDeck.Invoke(id);
     }
 
     //-----------------------------------------------------------------------------
@@ -119,6 +173,13 @@ public class MenuController : MonoBehaviour
     public void SetSetCardInTable(UnityAction<int> setCardInTable)
     {
         this.setCardInTable = setCardInTable;
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void SetAddCardToDeck(UnityAction<int> addCardToDeck)
+    {
+        this.addCardToDeck = addCardToDeck;
     }
 
     //-----------------------------------------------------------------------------

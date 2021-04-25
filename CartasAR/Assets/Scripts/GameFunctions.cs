@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SpatialTracking;
@@ -34,12 +35,10 @@ public class GameFunctions : MonoBehaviour
     public GameObject tablePrefab;
     #endregion
 
-    public Material iceMaterial;
-    public Material greenMaterial;
-    public Material redMaterial;
-    public Material yellowMaterial;
+    public List<Material> cardMaterialsToPlace;
 
     public static Dictionary<Material, int> cardMaterials = new Dictionary<Material, int>();
+    public static Dictionary<Material, int> cardMaterialsPlayed = new Dictionary<Material, int>();
 
     private void Awake()
     {
@@ -69,6 +68,7 @@ public class GameFunctions : MonoBehaviour
                         SelectCardInFront,
                         SetCardInTable,
                         SetOpositeCardInTable,
+                        AddCardToDeck,
                         buttons);
 
         playerDetect.StartPlayerDetect();
@@ -86,6 +86,11 @@ public class GameFunctions : MonoBehaviour
         cameraDetection.StartCameraDetection();
 
         menuController = GameObject.Find("MenuController").GetComponent<MenuController>();
+
+        for (int i = 0; i < cardMaterialsToPlace.Count; i++)
+        {
+            GameFunctions.cardMaterials.Add(cardMaterialsToPlace[i], i);
+        }
     }
 
     private void Update()
@@ -160,19 +165,14 @@ public class GameFunctions : MonoBehaviour
                     cardsInstantiated[i].SetActive(true);
                 }
             }
+            /*ESTO RULA DESCOMENTAR PARA PROBAR LAS CARTAS
             else
             {
                 int numCartas;
                 float newX, newZ;
                 Vector3 actualCardPosition;
-                List<Material> cardMaterials;
 
-                cardMaterials = new List<Material>();
-                cardMaterials.Add(greenMaterial);
-                cardMaterials.Add(redMaterial);
-                cardMaterials.Add(yellowMaterial);
-
-                numCartas = 3;
+                numCartas = 10;
                 cardPosition = cardPositionGO.transform.position;
                 cardRotation = cardPositionGO.transform.rotation;
                 
@@ -189,9 +189,18 @@ public class GameFunctions : MonoBehaviour
                     cardsInstantiated.Add(GameObject.Instantiate(cardPrefab, cardPosition, cardRotation));
                     cardsInstantiated[i].transform.SetParent(cardPositionGO.transform);
                     cardsInstantiated[i].transform.localPosition = actualCardPosition;
-                    cardsInstantiated[i].GetComponentInChildren<MeshRenderer>().material = cardMaterials[i];
+
+                    foreach (KeyValuePair<Material, int> kvp in cardMaterials)
+                    {
+                        if(kvp.Value == i)
+                        {
+                            Debug.Log("kvp.Value: " + kvp.Value);
+                            cardsInstantiated[i].GetComponentInChildren<MeshRenderer>().material = kvp.Key;
+                        }
+                    }
+
                 }
-            }
+            }*/
         }
         else
         {
@@ -431,7 +440,15 @@ public class GameFunctions : MonoBehaviour
         }
 
         {
-            card.GetComponentInChildren<MeshRenderer>().material = (Material)cardMaterials.Where(x => cardMaterials.Values.Contains(x.Value)).Select(x => x.Key);
+            foreach (KeyValuePair<Material, int> kvp in cardMaterials)
+            {
+                if (kvp.Value == id)
+                {
+                    card.GetComponentInChildren<MeshRenderer>().material = kvp.Key;
+                }
+            }
+
+            //card.GetComponentInChildren<MeshRenderer>().material = (Material)cardMaterials.Where(x => cardMaterials.Values.Contains(x.Value == id)).Select(x => x.Key);
         }
     }
 
@@ -446,5 +463,42 @@ public class GameFunctions : MonoBehaviour
          * BUSCAR FORMA DE TRASLADAR EL PLANE DETECTION AQUI Y REALIZAR LA LLAMADA EN CAMERADETECTION
          * 
          */
+    }
+
+    //----------------------------------------------
+    //PYRAMID METHODS
+    //----------------------------------------------
+
+    public void AddCardToDeck(List<GameObject> cardsInstantiated, int id)
+    {
+        //HACER LO DE ELEGIR EL RANDOM EN EL MENUCONTROLLER PARA QUE EL HOST SEA EL QUE TIENE EL CONTEO DE LAS CARTAS
+        Material randomMaterial = null;
+
+        foreach (KeyValuePair<Material, int> kvp in cardMaterials)
+        {
+            if (kvp.Value == id)
+            {
+                randomMaterial = kvp.Key;
+            }
+        }
+
+        cardMaterialsPlayed.Add(randomMaterial, id);
+        cardMaterials.Remove(randomMaterial);
+
+        int cardIndex = cardsInstantiated.Count - 1;
+        float newZ;
+
+        if (cardIndex == 0)
+            newZ = 0;
+        else
+            newZ = -0.05f;
+
+        Vector3 cardPosition = new Vector3(-0.08f * cardIndex, 0, newZ);
+
+        GameObject newCard = GameObject.Instantiate(cardPrefab);
+        newCard.transform.SetParent(cardPositionGO.transform);
+        newCard.transform.localPosition = cardPosition;
+        newCard.transform.rotation = cardPositionGO.transform.rotation;
+        newCard.GetComponentInChildren<MeshRenderer>().material = randomMaterial;
     }
 }

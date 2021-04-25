@@ -25,6 +25,11 @@ public class PlayerDetect
     private UnityAction<List<GameObject>> setCardInTable;
     private UnityAction<int> setOpositeCardInTable;
 
+    #region Pyramid
+    private UnityAction<List<GameObject>, int> addCardToDeck;
+
+    #endregion
+
     private Button[] buttons;
 
     public PlayerDetect(
@@ -36,6 +41,7 @@ public class PlayerDetect
                         UnityAction<List<GameObject>> selectCardInFront,
                         UnityAction<List<GameObject>> setCardInTable,
                         UnityAction<int> setOpositeCardInTable,
+                        UnityAction<List<GameObject>, int> addCardToDeck,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -46,6 +52,7 @@ public class PlayerDetect
         this.selectCardInFront = selectCardInFront;
         this.setCardInTable = setCardInTable;
         this.setOpositeCardInTable = setOpositeCardInTable;
+        this.addCardToDeck = addCardToDeck;
         this.buttons = buttons;
     }
 
@@ -61,6 +68,7 @@ public class PlayerDetect
         ConfigureButtons();
 
         GameObject.Find("MenuController").GetComponent<MenuController>().SetSetCardInTable(SetOpositeCardInTable);
+        GameObject.Find("MenuController").GetComponent<MenuController>().SetAddCardToDeck(AddCardToDeck);
     }
 
     public void UpdatePlayerDetect()
@@ -163,6 +171,13 @@ public class PlayerDetect
     public void SetOpositeCardInTable(int id)
     {
         setOpositeCardInTable.Invoke(id);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void AddCardToDeck(int id)
+    {
+        addCardToDeck.Invoke(cardsInstantiated, id);
     }
 
     public void SetTouchPosition(Vector2 touchPosition) => this.touchPosition = touchPosition;
