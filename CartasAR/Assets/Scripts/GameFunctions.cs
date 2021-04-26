@@ -500,5 +500,7 @@ public class GameFunctions : MonoBehaviour
         newCard.transform.localPosition = cardPosition;
         newCard.transform.rotation = cardPositionGO.transform.rotation;
         newCard.GetComponentInChildren<MeshRenderer>().material = randomMaterial;
+
+        cardsInstantiated.Add(newCard);
     }
 }

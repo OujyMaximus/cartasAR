@@ -143,11 +143,18 @@ public class MenuController : MonoBehaviour
 
         int index;
         GameFunctions.cardMaterials.TryGetValue(randomMaterial, out index);
+        
+        if (playerIDs.Count > 1)
+            currentPlayerTurn = (currentPlayerTurn + 1) % (playerIDs.Count);
+        else
+            currentPlayerTurn = 0;
+        Debug.Log("currentPlayerTurn: " + currentPlayerTurn);
+        if(currentPlayerTurn != (playerIDs.Count - 1))
+        {
+            GameFunctions.cardMaterials.Remove(randomMaterial);
+            GameFunctions.cardMaterialsPlayed.Add(randomMaterial, index);
+        }
 
-        GameFunctions.cardMaterials.Remove(randomMaterial);
-        GameFunctions.cardMaterialsPlayed.Add(randomMaterial, index);
-
-        currentPlayerTurn = (currentPlayerTurn + 1) % (playerIDs.Count - 1);
 
         photonView.RPC("AddCardToDeck", PhotonPlayer.Find(playerIDs[currentPlayerTurn]), index);
     }
