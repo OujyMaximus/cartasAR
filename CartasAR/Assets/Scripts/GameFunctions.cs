@@ -69,6 +69,7 @@ public class GameFunctions : MonoBehaviour
                         SetCardInTable,
                         SetOpositeCardInTable,
                         AddCardToDeck,
+                        AddCardsToPyramid,
                         buttons);
 
         playerDetect.StartPlayerDetect();
@@ -471,7 +472,6 @@ public class GameFunctions : MonoBehaviour
 
     public void AddCardToDeck(List<GameObject> cardsInstantiated, int id)
     {
-        //HACER LO DE ELEGIR EL RANDOM EN EL MENUCONTROLLER PARA QUE EL HOST SEA EL QUE TIENE EL CONTEO DE LAS CARTAS
         Material randomMaterial = null;
 
         foreach (KeyValuePair<Material, int> kvp in cardMaterials)
@@ -502,5 +502,10 @@ public class GameFunctions : MonoBehaviour
         newCard.GetComponentInChildren<MeshRenderer>().material = randomMaterial;
 
         cardsInstantiated.Add(newCard);
+    }
+
+    public void AddCardsToPyramid(List<GameObject> cardsInstantiated, List<int> ids)
+    {
+
     }
 }

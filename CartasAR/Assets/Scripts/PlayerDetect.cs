@@ -27,6 +27,7 @@ public class PlayerDetect
 
     #region Pyramid
     private UnityAction<List<GameObject>, int> addCardToDeck;
+    private UnityAction<List<GameObject>, List<int>> addCardsToPyramid;
 
     #endregion
 
@@ -42,6 +43,7 @@ public class PlayerDetect
                         UnityAction<List<GameObject>> setCardInTable,
                         UnityAction<int> setOpositeCardInTable,
                         UnityAction<List<GameObject>, int> addCardToDeck,
+                        UnityAction<List<GameObject>, List<int>> addCardsToPyramid,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -53,6 +55,7 @@ public class PlayerDetect
         this.setCardInTable = setCardInTable;
         this.setOpositeCardInTable = setOpositeCardInTable;
         this.addCardToDeck = addCardToDeck;
+        this.addCardsToPyramid = addCardsToPyramid;
         this.buttons = buttons;
     }
 
@@ -178,6 +181,13 @@ public class PlayerDetect
     public void AddCardToDeck(int id)
     {
         addCardToDeck.Invoke(cardsInstantiated, id);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void AddCardsToPyramid(List<int> ids)
+    {
+        addCardsToPyramid.Invoke(cardsInstantiated, ids);
     }
 
     public void SetTouchPosition(Vector2 touchPosition) => this.touchPosition = touchPosition;

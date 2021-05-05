@@ -45,4 +45,5 @@ MonoBehaviour:
   - RequestForPickupTimes
   - SetCardInTable
   - TaggedPlayer
+  - AddCardsToPyramid
   DisableAutoOpenWizard: 1
