@@ -18,7 +18,7 @@ public class MenuController : MonoBehaviour
 
     private UnityAction<int> setCardInTable;
     private UnityAction<int> addCardToDeck;
-    private UnityAction<List<int>> addCardsToPyramid;
+    private UnityAction<int> addCardToPyramid;
 
     private PhotonView photonView;
 
@@ -156,15 +156,21 @@ public class MenuController : MonoBehaviour
         }
 
         photonView.RPC("AddCardToDeck", PhotonPlayer.Find(playerIDs[currentPlayerTurn]), index);
+
+        Debug.Log("GameFunctions.cardMaterialsPlayed.Count: " + GameFunctions.cardMaterialsPlayed.Count);
+        Debug.Log("playerIDs.Count: " + playerIDs.Count);
+
+        if(GameFunctions.cardMaterialsPlayed.Count == (playerIDs.Count * 4))
+        {
+            MakePyramid();
+        }
     }
 
     //-----------------------------------------------------------------------------
 
     public void MakePyramid()
     {
-        List<int> indexes = new List<int>();
-
-        for(int i = 0; i < 10; i++)
+        for (int i = 0; i < 10; i++)
         {
             List<Material> materialsList = new List<Material>(GameFunctions.cardMaterials.Keys);
             System.Random rand = new System.Random();
@@ -177,10 +183,8 @@ public class MenuController : MonoBehaviour
             GameFunctions.cardMaterials.Remove(randomMaterial);
             GameFunctions.cardMaterialsPlayed.Add(randomMaterial, index);
 
-            indexes.Add(index);
+            photonView.RPC("AddCardToPyramid", PhotonTargets.All, index);
         }
-
-        photonView.RPC("AddCardsToPyramid", PhotonTargets.All, indexes);
     }
 
     //-----------------------------------------------------------------------------
@@ -202,9 +206,9 @@ public class MenuController : MonoBehaviour
     //-----------------------------------------------------------------------------
 
     [PunRPC]
-    public void AddCardsToPyramid(List<int> ids)
+    public void AddCardToPyramid(int id)
     {
-        addCardsToPyramid.Invoke(ids);
+        addCardToPyramid.Invoke(id);
     }
 
     //-----------------------------------------------------------------------------
@@ -223,9 +227,9 @@ public class MenuController : MonoBehaviour
 
     //-----------------------------------------------------------------------------
 
-    public void SetAddCardsToPyramid(UnityAction<List<int>> addCardsToPyramid)
+    public void SetAddCardToPyramid(UnityAction<int> addCardToPyramid)
     {
-        this.addCardsToPyramid = addCardsToPyramid;
+        this.addCardToPyramid = addCardToPyramid;
     }
 
     //-----------------------------------------------------------------------------

@@ -27,7 +27,7 @@ public class PlayerDetect
 
     #region Pyramid
     private UnityAction<List<GameObject>, int> addCardToDeck;
-    private UnityAction<List<GameObject>, List<int>> addCardsToPyramid;
+    private UnityAction<int> addCardToPyramid;
 
     #endregion
 
@@ -43,7 +43,7 @@ public class PlayerDetect
                         UnityAction<List<GameObject>> setCardInTable,
                         UnityAction<int> setOpositeCardInTable,
                         UnityAction<List<GameObject>, int> addCardToDeck,
-                        UnityAction<List<GameObject>, List<int>> addCardsToPyramid,
+                        UnityAction<int> addCardToPyramid,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -55,7 +55,7 @@ public class PlayerDetect
         this.setCardInTable = setCardInTable;
         this.setOpositeCardInTable = setOpositeCardInTable;
         this.addCardToDeck = addCardToDeck;
-        this.addCardsToPyramid = addCardsToPyramid;
+        this.addCardToPyramid = addCardToPyramid;
         this.buttons = buttons;
     }
 
@@ -72,6 +72,7 @@ public class PlayerDetect
 
         GameObject.Find("MenuController").GetComponent<MenuController>().SetSetCardInTable(SetOpositeCardInTable);
         GameObject.Find("MenuController").GetComponent<MenuController>().SetAddCardToDeck(AddCardToDeck);
+        GameObject.Find("MenuController").GetComponent<MenuController>().SetAddCardToPyramid(AddCardToPyramid);
     }
 
     public void UpdatePlayerDetect()
@@ -185,9 +186,9 @@ public class PlayerDetect
 
     //-----------------------------------------------------------------------------
 
-    public void AddCardsToPyramid(List<int> ids)
+    public void AddCardToPyramid(int id)
     {
-        addCardsToPyramid.Invoke(cardsInstantiated, ids);
+        addCardToPyramid.Invoke(id);
     }
 
     public void SetTouchPosition(Vector2 touchPosition) => this.touchPosition = touchPosition;

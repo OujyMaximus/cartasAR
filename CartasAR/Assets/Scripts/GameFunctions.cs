@@ -24,6 +24,7 @@ public class GameFunctions : MonoBehaviour
     private Camera arCamera;
     private TrackedPoseDriver aRTrackedPoseDriver;
     public GameObject cardPositionGO;
+    private List<int> pyramidIndexes;
     #endregion
 
     #region PlayerDetect variables
@@ -69,7 +70,7 @@ public class GameFunctions : MonoBehaviour
                         SetCardInTable,
                         SetOpositeCardInTable,
                         AddCardToDeck,
-                        AddCardsToPyramid,
+                        AddCardToPyramid,
                         buttons);
 
         playerDetect.StartPlayerDetect();
@@ -92,6 +93,8 @@ public class GameFunctions : MonoBehaviour
         {
             GameFunctions.cardMaterials.Add(cardMaterialsToPlace[i], i);
         }
+
+        pyramidIndexes = new List<int>();
     }
 
     private void Update()
@@ -448,8 +451,6 @@ public class GameFunctions : MonoBehaviour
                     card.GetComponentInChildren<MeshRenderer>().material = kvp.Key;
                 }
             }
-
-            //card.GetComponentInChildren<MeshRenderer>().material = (Material)cardMaterials.Where(x => cardMaterials.Values.Contains(x.Value == id)).Select(x => x.Key);
         }
     }
 
@@ -504,8 +505,38 @@ public class GameFunctions : MonoBehaviour
         cardsInstantiated.Add(newCard);
     }
 
-    public void AddCardsToPyramid(List<GameObject> cardsInstantiated, List<int> ids)
+    public void AddCardToPyramid(int id)
     {
+        pyramidIndexes.Add(id);
 
+        if (pyramidIndexes.Count == 10)
+            AddCardsToPyramid(pyramidIndexes);
+    }
+
+    public void AddCardsToPyramid(List<int> ids)
+    {
+        for(int i = 0; i < 10; i++)
+        {
+            GameObject cardToPlace = GameObject.Find($"Card{i}");
+
+            Material randomMaterial = null;
+
+            foreach (KeyValuePair<Material, int> kvp in cardMaterials)
+            {
+                if (kvp.Value == ids[i])
+                {
+                    randomMaterial = kvp.Key;
+                }
+            }
+
+            cardMaterialsPlayed.Add(randomMaterial, ids[i]);
+            cardMaterials.Remove(randomMaterial);
+
+            GameObject newCard = GameObject.Instantiate(cardPrefab);
+            newCard.transform.SetParent(cardToPlace.transform);
+            newCard.transform.localPosition = Vector3.zero;
+            newCard.transform.eulerAngles = new Vector3(90f, 0f, 0f);
+            newCard.GetComponentInChildren<MeshRenderer>().material = randomMaterial;
+        }
     }
 }
