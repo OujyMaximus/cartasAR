@@ -30,6 +30,7 @@ public class MenuController : MonoBehaviour
 
     private GameObject startGameGO;
     private GameObject giveCardGO;
+    private GameObject makePyramidGO;
 
     private void Awake()
     {
@@ -41,9 +42,11 @@ public class MenuController : MonoBehaviour
 
         startGameGO = GameObject.Find("StartGame");
         giveCardGO = GameObject.Find("GiveCard");
+        makePyramidGO = GameObject.Find("MakePyramid");
 
         startGameGO.SetActive(false);
         giveCardGO.SetActive(false);
+        makePyramidGO.SetActive(false);
     }
 
     private void Start()
@@ -157,12 +160,10 @@ public class MenuController : MonoBehaviour
 
         photonView.RPC("AddCardToDeck", PhotonPlayer.Find(playerIDs[currentPlayerTurn]), index);
 
-        Debug.Log("GameFunctions.cardMaterialsPlayed.Count: " + GameFunctions.cardMaterialsPlayed.Count);
-        Debug.Log("playerIDs.Count: " + playerIDs.Count);
-
         if(GameFunctions.cardMaterialsPlayed.Count == (playerIDs.Count * 4))
         {
-            MakePyramid();
+            giveCardGO.SetActive(false);
+            makePyramidGO.SetActive(true);
         }
     }
 

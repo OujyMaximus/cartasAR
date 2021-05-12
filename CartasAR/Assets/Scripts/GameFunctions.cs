@@ -526,16 +526,32 @@ public class GameFunctions : MonoBehaviour
                 if (kvp.Value == ids[i])
                 {
                     randomMaterial = kvp.Key;
+                    break;
                 }
             }
 
-            cardMaterialsPlayed.Add(randomMaterial, ids[i]);
-            cardMaterials.Remove(randomMaterial);
+            if(randomMaterial == null)
+            {
+                foreach (KeyValuePair<Material, int> kvp in cardMaterialsPlayed)
+                {
+                    if (kvp.Value == ids[i])
+                    {
+                        randomMaterial = kvp.Key;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                cardMaterialsPlayed.Add(randomMaterial, ids[i]);
+                cardMaterials.Remove(randomMaterial);
+            }
+
 
             GameObject newCard = GameObject.Instantiate(cardPrefab);
             newCard.transform.SetParent(cardToPlace.transform);
             newCard.transform.localPosition = Vector3.zero;
-            newCard.transform.eulerAngles = new Vector3(90f, 0f, 0f);
+            newCard.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
             newCard.GetComponentInChildren<MeshRenderer>().material = randomMaterial;
         }
     }
