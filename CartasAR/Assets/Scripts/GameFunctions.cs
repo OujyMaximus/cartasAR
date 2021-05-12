@@ -25,10 +25,14 @@ public class GameFunctions : MonoBehaviour
     private TrackedPoseDriver aRTrackedPoseDriver;
     public GameObject cardPositionGO;
     private List<int> pyramidIndexes;
+    private GameObject giveCardGO;
+    private GameObject makePyramidGO;
+    private GameObject flipCardGO;
     #endregion
 
     #region PlayerDetect variables
     private bool isPlaced;
+    private PhotonView photonView;
     #endregion
 
     #region CameraDetection variables
@@ -36,10 +40,12 @@ public class GameFunctions : MonoBehaviour
     public GameObject tablePrefab;
     #endregion
 
+    #region Card variables
     public List<Material> cardMaterialsToPlace;
 
     public static Dictionary<Material, int> cardMaterials = new Dictionary<Material, int>();
     public static Dictionary<Material, int> cardMaterialsPlayed = new Dictionary<Material, int>();
+    #endregion
 
     private void Awake()
     {
@@ -70,6 +76,8 @@ public class GameFunctions : MonoBehaviour
                         SetCardInTable,
                         SetOpositeCardInTable,
                         AddCardToDeck,
+                        GiveCardToPlayer,
+                        MakePyramid,
                         AddCardToPyramid,
                         buttons);
 
@@ -89,10 +97,20 @@ public class GameFunctions : MonoBehaviour
 
         menuController = GameObject.Find("MenuController").GetComponent<MenuController>();
 
+        giveCardGO = GameObject.Find("GiveCard");
+        makePyramidGO = GameObject.Find("MakePyramid");
+        flipCardGO = GameObject.Find("MakePyramid");
+
+        makePyramidGO.SetActive(false);
+        flipCardGO.SetActive(false);
+
+        photonView = GetComponent<PhotonView>();
+
         for (int i = 0; i < cardMaterialsToPlace.Count; i++)
         {
             GameFunctions.cardMaterials.Add(cardMaterialsToPlace[i], i);
         }
+
 
         pyramidIndexes = new List<int>();
     }
@@ -454,6 +472,31 @@ public class GameFunctions : MonoBehaviour
         }
     }
 
+    //-----------------------------------------------------------------------------
+
+    public void GiveCardToPlayer()
+    {
+        List<Material> materialsList = new List<Material>(cardMaterials.Keys);
+        System.Random rand = new System.Random();
+
+        Material randomMaterial = materialsList[rand.Next(materialsList.Count)];
+
+        int index;
+        cardMaterials.TryGetValue(randomMaterial, out index);
+
+        cardMaterials.Remove(randomMaterial);
+        cardMaterialsPlayed.Add(randomMaterial, index);
+
+        menuController.GiveCardToPlayer(index);
+
+        if (cardMaterialsPlayed.Count == (menuController.GetPlayerIds().Count * 4))
+        {
+            giveCardGO.SetActive(false);
+            makePyramidGO.SetActive(true);
+        }
+    }
+
+
     //----------------------------------------------
     //CAMERA DETECTION METHODS
     //----------------------------------------------
@@ -473,6 +516,7 @@ public class GameFunctions : MonoBehaviour
 
     public void AddCardToDeck(List<GameObject> cardsInstantiated, int id)
     {
+        bool cardRemoved;
         Material randomMaterial = null;
 
         foreach (KeyValuePair<Material, int> kvp in cardMaterials)
@@ -483,8 +527,24 @@ public class GameFunctions : MonoBehaviour
             }
         }
 
-        cardMaterialsPlayed.Add(randomMaterial, id);
-        cardMaterials.Remove(randomMaterial);
+        if (randomMaterial == null)
+        {
+            foreach (KeyValuePair<Material, int> kvp in cardMaterialsPlayed)
+            {
+                if (kvp.Value == id)
+                {
+                    randomMaterial = kvp.Key;
+                    break;
+                }
+            }
+        }
+
+        cardRemoved = cardMaterials.Remove(randomMaterial);
+
+        if(cardRemoved)
+        {
+            cardMaterialsPlayed.Add(randomMaterial, id);
+        }
 
         int cardIndex = cardsInstantiated.Count - 1;
         float newZ;
@@ -505,13 +565,19 @@ public class GameFunctions : MonoBehaviour
         cardsInstantiated.Add(newCard);
     }
 
+    //-----------------------------------------------------------------------------
+
     public void AddCardToPyramid(int id)
     {
         pyramidIndexes.Add(id);
 
+        Debug.Log(id);
+
         if (pyramidIndexes.Count == 10)
             AddCardsToPyramid(pyramidIndexes);
     }
+
+    //-----------------------------------------------------------------------------
 
     public void AddCardsToPyramid(List<int> ids)
     {
@@ -554,5 +620,30 @@ public class GameFunctions : MonoBehaviour
             newCard.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
             newCard.GetComponentInChildren<MeshRenderer>().material = randomMaterial;
         }
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void MakePyramid()
+    {
+        System.Random rand = new System.Random();
+        
+        for (int i = 0; i < 10; i++)
+        {
+            List<Material> materialsList = new List<Material>(cardMaterials.Keys);
+
+            Material randomMaterial = materialsList[rand.Next(materialsList.Count)];
+
+            int index;
+            cardMaterials.TryGetValue(randomMaterial, out index);
+
+            cardMaterials.Remove(randomMaterial);
+            cardMaterialsPlayed.Add(randomMaterial, index);
+
+            menuController.AddCardToPlayersPyramid(index);
+        }
+
+        makePyramidGO.SetActive(false);
+        flipCardGO.SetActive(true);
     }
 }

@@ -27,6 +27,8 @@ public class PlayerDetect
 
     #region Pyramid
     private UnityAction<List<GameObject>, int> addCardToDeck;
+    private UnityAction giveCardToPlayer;
+    private UnityAction makePyramid;
     private UnityAction<int> addCardToPyramid;
 
     #endregion
@@ -43,6 +45,8 @@ public class PlayerDetect
                         UnityAction<List<GameObject>> setCardInTable,
                         UnityAction<int> setOpositeCardInTable,
                         UnityAction<List<GameObject>, int> addCardToDeck,
+                        UnityAction giveCardToPlayer,
+                        UnityAction makePyramid,
                         UnityAction<int> addCardToPyramid,
                         Button[] buttons)
     {
@@ -55,6 +59,8 @@ public class PlayerDetect
         this.setCardInTable = setCardInTable;
         this.setOpositeCardInTable = setOpositeCardInTable;
         this.addCardToDeck = addCardToDeck;
+        this.giveCardToPlayer = giveCardToPlayer;
+        this.makePyramid = makePyramid;
         this.addCardToPyramid = addCardToPyramid;
         this.buttons = buttons;
     }
@@ -93,6 +99,10 @@ public class PlayerDetect
                 b.onClick.AddListener(() => ButtonPlacementPress(b));
             else if (b.gameObject.name == "ButtonCard")
                 b.onClick.AddListener(ButtonSelectCardPress);
+            else if (b.gameObject.name == "ButtonGiveCard")
+                b.onClick.AddListener(GiveCardToPlayer);
+            else if (b.gameObject.name == "ButtonMakePyramid")
+                b.onClick.AddListener(MakePyramid);
         }
     }
 
@@ -182,6 +192,20 @@ public class PlayerDetect
     public void AddCardToDeck(int id)
     {
         addCardToDeck.Invoke(cardsInstantiated, id);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void GiveCardToPlayer()
+    {
+        giveCardToPlayer.Invoke();
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void MakePyramid()
+    {
+        makePyramid.Invoke();
     }
 
     //-----------------------------------------------------------------------------

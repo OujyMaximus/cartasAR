@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -30,7 +31,6 @@ public class MenuController : MonoBehaviour
 
     private GameObject startGameGO;
     private GameObject giveCardGO;
-    private GameObject makePyramidGO;
 
     private void Awake()
     {
@@ -39,19 +39,17 @@ public class MenuController : MonoBehaviour
         isMenuActive = true;
         currentPlayerTurn = 0;
         playerIDs = new List<int>();
-
-        startGameGO = GameObject.Find("StartGame");
-        giveCardGO = GameObject.Find("GiveCard");
-        makePyramidGO = GameObject.Find("MakePyramid");
-
-        startGameGO.SetActive(false);
-        giveCardGO.SetActive(false);
-        makePyramidGO.SetActive(false);
     }
 
     private void Start()
     {
         photonView = GetComponent<PhotonView>();
+
+        startGameGO = GameObject.Find("StartGame");
+        giveCardGO = GameObject.Find("GiveCard");
+
+        startGameGO.SetActive(false);
+        giveCardGO.SetActive(false);
     }
 
     //-----------------------------------------------------------------------------
@@ -105,7 +103,6 @@ public class MenuController : MonoBehaviour
 
         for(int i = 0; i < playerList.Length; i++)
         {
-            Debug.Log("playerList[i].ID: " + playerList[i].ID);
             playerIDs.Add(playerList[i].ID);
         }
 
@@ -137,55 +134,21 @@ public class MenuController : MonoBehaviour
 
     //-----------------------------------------------------------------------------
 
-    public void GiveCardToPlayer()
+    public void GiveCardToPlayer(int index)
     {
-        List<Material> materialsList = new List<Material>(GameFunctions.cardMaterials.Keys);
-        System.Random rand = new System.Random();
-
-        Material randomMaterial = materialsList[rand.Next(materialsList.Count)];
-
-        int index;
-        GameFunctions.cardMaterials.TryGetValue(randomMaterial, out index);
-        
         if (playerIDs.Count > 1)
             currentPlayerTurn = (currentPlayerTurn + 1) % (playerIDs.Count);
         else
             currentPlayerTurn = 0;
 
-        if(currentPlayerTurn != (playerIDs.Count - 1))
-        {
-            GameFunctions.cardMaterials.Remove(randomMaterial);
-            GameFunctions.cardMaterialsPlayed.Add(randomMaterial, index);
-        }
-
         photonView.RPC("AddCardToDeck", PhotonPlayer.Find(playerIDs[currentPlayerTurn]), index);
-
-        if(GameFunctions.cardMaterialsPlayed.Count == (playerIDs.Count * 4))
-        {
-            giveCardGO.SetActive(false);
-            makePyramidGO.SetActive(true);
-        }
     }
 
     //-----------------------------------------------------------------------------
 
-    public void MakePyramid()
+    public void AddCardToPlayersPyramid(int index)
     {
-        for (int i = 0; i < 10; i++)
-        {
-            List<Material> materialsList = new List<Material>(GameFunctions.cardMaterials.Keys);
-            System.Random rand = new System.Random();
-
-            Material randomMaterial = materialsList[rand.Next(materialsList.Count)];
-
-            int index;
-            GameFunctions.cardMaterials.TryGetValue(randomMaterial, out index);
-
-            GameFunctions.cardMaterials.Remove(randomMaterial);
-            GameFunctions.cardMaterialsPlayed.Add(randomMaterial, index);
-
-            photonView.RPC("AddCardToPyramid", PhotonTargets.All, index);
-        }
+        photonView.RPC("AddCardToPyramid", PhotonTargets.All, index);
     }
 
     //-----------------------------------------------------------------------------
@@ -240,4 +203,8 @@ public class MenuController : MonoBehaviour
     //-----------------------------------------------------------------------------
 
     public bool GetIsMenuActive() => isMenuActive;
+
+    //-----------------------------------------------------------------------------
+
+    public List<int> GetPlayerIds() => playerIDs;
 }
