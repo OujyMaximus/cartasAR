@@ -43,8 +43,8 @@ public class GameFunctions : MonoBehaviour
     #region Card variables
     public List<Material> cardMaterialsToPlace;
 
-    public static Dictionary<Material, int> cardMaterials = new Dictionary<Material, int>();
-    public static Dictionary<Material, int> cardMaterialsPlayed = new Dictionary<Material, int>();
+    private Dictionary<Material, int> cardMaterials = new Dictionary<Material, int>();
+    private Dictionary<Material, int> cardMaterialsPlayed = new Dictionary<Material, int>();
     #endregion
 
     private void Awake()
@@ -79,6 +79,8 @@ public class GameFunctions : MonoBehaviour
                         GiveCardToPlayer,
                         MakePyramid,
                         AddCardToPyramid,
+                        FindCardToFlipInPyramid,
+                        FlipCardInPyramid,
                         buttons);
 
         playerDetect.StartPlayerDetect();
@@ -99,7 +101,7 @@ public class GameFunctions : MonoBehaviour
 
         giveCardGO = GameObject.Find("GiveCard");
         makePyramidGO = GameObject.Find("MakePyramid");
-        flipCardGO = GameObject.Find("MakePyramid");
+        flipCardGO = GameObject.Find("FlipCard");
 
         makePyramidGO.SetActive(false);
         flipCardGO.SetActive(false);
@@ -108,7 +110,7 @@ public class GameFunctions : MonoBehaviour
 
         for (int i = 0; i < cardMaterialsToPlace.Count; i++)
         {
-            GameFunctions.cardMaterials.Add(cardMaterialsToPlace[i], i);
+            cardMaterials.Add(cardMaterialsToPlace[i], i);
         }
 
 
@@ -295,12 +297,6 @@ public class GameFunctions : MonoBehaviour
     //Este metodo se encarga de mover las cartas cuando se detecta un swipe del jugador, direccion sera 1 si va hacia la izquierda y -1 si es hacia la derecha
     public void SwitchCardInFront(List<GameObject> cardsInstantiated, int direction)
     {
-        /*
-         * 
-         * BUGAZO: SI AL PULSAR EL BOTON PRIMERO LE DAS PARA IR A LA IZQUIERDA PETA BASTANTE LOCO, puede que sea por la variable currentCardInFront(?)
-         * 
-         */
-
         int currentCardInFront;
         float movingDistance;
 
@@ -340,7 +336,7 @@ public class GameFunctions : MonoBehaviour
 
     //-----------------------------------------------------------------------------
 
-    private float CalculateCardPoserPosition(GameObject cardPlacement)
+    /*private float CalculateCardPoserPosition(GameObject cardPlacement)
     {
         float posX, cardPlacementNumChildren, multiplier;
 
@@ -356,6 +352,26 @@ public class GameFunctions : MonoBehaviour
         posX = posX * (0.12f * multiplier);
 
         return posX;
+    }*/
+
+    private GameObject CalculateCardPoserParent()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            GameObject auxCard;
+
+            auxCard = GameObject.Find("Pyramid").transform.GetChild(i).transform.GetChild(0).gameObject;
+
+            if (auxCard.transform.localEulerAngles.x == 270f)
+            {
+                auxCard = GameObject.Find("Pyramid").transform.GetChild(i-1).transform.GetChild(0).gameObject;
+                
+                if(auxCard != null)
+                    return auxCard.transform.parent.gameObject;
+            }
+        }
+
+        return null;
     }
 
     //-----------------------------------------------------------------------------
@@ -363,7 +379,7 @@ public class GameFunctions : MonoBehaviour
     public void SelectCardInFront(List<GameObject> cardsInstantiated)
     {
         int currentCardInFront;
-        GameObject cardPlacement, cardPoserInstantiated;
+        GameObject cardPoserInstantiated;
 
         currentCardInFront = 0;
 
@@ -377,17 +393,14 @@ public class GameFunctions : MonoBehaviour
         }
 
         {
-            float posX;
+            System.Random rand = new System.Random();
 
-            cardPlacement = GameObject.Find("CardPlacement");
             cardPoserInstantiated = GameObject.Instantiate(cardPoser);
 
-            cardPoserInstantiated.transform.SetParent(cardPlacement.transform);
+            //TODO: Aqui habra que comprobar que si la posicion es zero no se pueda colocar la carta
+            cardPoserInstantiated.transform.SetParent(CalculateCardPoserParent().transform);
             cardPoserInstantiated.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
-
-            posX = CalculateCardPoserPosition(cardPlacement);
-
-            cardPoserInstantiated.transform.localPosition = new Vector3(posX, 0f, 0f);
+            cardPoserInstantiated.transform.localPosition = Vector3.zero;
         }
 
         for (int i = 0; i < cardsInstantiated.Count; i++)
@@ -400,7 +413,7 @@ public class GameFunctions : MonoBehaviour
 
                 newX = cardsInstantiated[i].transform.localPosition.x;
                 newY = -0.045f;
-                newZ = +0.05f;
+                newZ = 0.03f;
 
                 Vector3 cardPosition = new Vector3(newX, newY, newZ);
 
@@ -414,9 +427,8 @@ public class GameFunctions : MonoBehaviour
     public void SetCardInTable(List<GameObject> cardsInstantiated)
     {
         int numCards, cardToSet;
-        GameObject cardPlacement, cardSelected, cardPoser;
+        GameObject cardSelected, cardPoser;
 
-        cardPlacement = GameObject.Find("CardPlacement");
         cardPoser = GameObject.FindGameObjectWithTag("CardPoser");
         numCards = cardsInstantiated.Count;
         cardSelected = null;
@@ -428,16 +440,44 @@ public class GameFunctions : MonoBehaviour
 
             if (x < 0.01f && x > -0.01f)
             {
-                cardMaterials.TryGetValue(cardsInstantiated[i].GetComponentInChildren<MeshRenderer>().material, out cardToSet);
+                Material material = cardsInstantiated[i].GetComponentInChildren<MeshRenderer>().material;
+
+                foreach (KeyValuePair<Material, int> kvp in cardMaterialsPlayed)
+                {
+                    if (kvp.Key.mainTexture.name == material.mainTexture.name)
+                    {
+                        cardToSet = kvp.Value;
+                        break;
+                    }
+                }
+
+                Debug.Log("cardToSet_1: " + cardToSet);
+
+                if(cardToSet == -1)
+                {
+                    foreach (KeyValuePair<Material, int> kvp in cardMaterials)
+                    {
+                        if (kvp.Key.mainTexture.name == material.mainTexture.name)
+                        {
+                            cardToSet = kvp.Value;
+                            break;
+                        }
+                    }
+                }
+
+                Debug.Log("cardToSet_2: " + cardToSet);
+
                 cardSelected = cardsInstantiated[i];
                 cardsInstantiated.RemoveAt(i);
                 break;
             }
         }
 
-        cardSelected.transform.SetParent(cardPlacement.transform);
-        cardSelected.transform.localPosition = cardPoser.transform.localPosition;
-        cardSelected.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+        System.Random rand = new System.Random();
+
+        cardSelected.transform.SetParent(cardPoser.transform.parent);
+        cardSelected.transform.localEulerAngles = new Vector3(90f, rand.Next(-10, 10), 0f);
+        cardSelected.transform.localPosition = new Vector3(0f, 0.001f * (cardPoser.transform.parent.childCount-1), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
         Destroy(cardPoser);
         GameObject.Find("MenuController").GetComponent<MenuController>().SendCardSetInTable(cardToSet);
     }
@@ -446,29 +486,45 @@ public class GameFunctions : MonoBehaviour
 
     public void SetOpositeCardInTable(int id)
     {
-        float posX;
-        GameObject card, opositeCardPlacement;
+        GameObject card;
 
-        opositeCardPlacement = GameObject.Find("OpositeCardPlacement");
         card = GameObject.Instantiate(cardPrefab);
 
         {
-            card.transform.SetParent(opositeCardPlacement.transform);
-            card.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+            GameObject cardPoserParent;
+            System.Random rand = new System.Random();
 
-            posX = CalculateCardPoserPosition(opositeCardPlacement);
+            cardPoserParent = CalculateCardPoserParent();
 
-            card.transform.localPosition = new Vector3(posX, 0f, 0f);
+            //TODO: Aqui habra que comprobar que si la posicion es zero no se pueda colocar la carta
+            card.transform.SetParent(cardPoserParent.transform);
+            card.transform.localEulerAngles = new Vector3(90f, rand.Next(-10, 10), 0f);
+            card.transform.localPosition = new Vector3(0f, 0.001f * (cardPoserParent.transform.childCount - 1), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
         }
 
         {
+            Material materialToSet = null;
+
             foreach (KeyValuePair<Material, int> kvp in cardMaterials)
             {
                 if (kvp.Value == id)
                 {
-                    card.GetComponentInChildren<MeshRenderer>().material = kvp.Key;
+                    materialToSet = kvp.Key;
                 }
             }
+
+            if(materialToSet == null)
+            {
+                foreach (KeyValuePair<Material, int> kvp in cardMaterialsPlayed)
+                {
+                    if (kvp.Value == id)
+                    {
+                        materialToSet = kvp.Key;
+                    }
+                }
+            }
+
+            card.GetComponentInChildren<MeshRenderer>().material = materialToSet;
         }
     }
 
@@ -571,8 +627,6 @@ public class GameFunctions : MonoBehaviour
     {
         pyramidIndexes.Add(id);
 
-        Debug.Log(id);
-
         if (pyramidIndexes.Count == 10)
             AddCardsToPyramid(pyramidIndexes);
     }
@@ -617,7 +671,7 @@ public class GameFunctions : MonoBehaviour
             GameObject newCard = GameObject.Instantiate(cardPrefab);
             newCard.transform.SetParent(cardToPlace.transform);
             newCard.transform.localPosition = Vector3.zero;
-            newCard.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+            newCard.transform.localEulerAngles = new Vector3(-90f, 0f, 0f);
             newCard.GetComponentInChildren<MeshRenderer>().material = randomMaterial;
         }
     }
@@ -645,5 +699,38 @@ public class GameFunctions : MonoBehaviour
 
         makePyramidGO.SetActive(false);
         flipCardGO.SetActive(true);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void FindCardToFlipInPyramid()
+    {
+        for(int i = 0; i < 10; i++)
+        {
+            GameObject auxCard;
+
+            auxCard = GameObject.Find("Pyramid").transform.GetChild(i).gameObject;
+
+            if(auxCard.transform.GetChild(0).localEulerAngles.x == 270f)
+            {
+                menuController.FlipCardToPlayersPyramid(i);
+                
+                if(i == 9)
+                    flipCardGO.SetActive(false);
+
+                break;
+            }
+        }
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void FlipCardInPyramid(int id)
+    {
+        GameObject cardToFlip;
+
+        cardToFlip = GameObject.Find($"Card{id}").transform.GetChild(0).gameObject;
+
+        cardToFlip.transform.localEulerAngles = new Vector3(90, 0, 0);
     }
 }

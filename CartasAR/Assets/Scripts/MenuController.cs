@@ -20,6 +20,7 @@ public class MenuController : MonoBehaviour
     private UnityAction<int> setCardInTable;
     private UnityAction<int> addCardToDeck;
     private UnityAction<int> addCardToPyramid;
+    private UnityAction<int> flipCardToPyramid;
 
     private PhotonView photonView;
 
@@ -41,6 +42,8 @@ public class MenuController : MonoBehaviour
         playerIDs = new List<int>();
     }
 
+    //-----------------------------------------------------------------------------
+
     private void Start()
     {
         photonView = GetComponent<PhotonView>();
@@ -50,6 +53,20 @@ public class MenuController : MonoBehaviour
 
         startGameGO.SetActive(false);
         giveCardGO.SetActive(false);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void ConfigurePlayerMethods(
+                                        UnityAction<int> setCardInTable,
+                                        UnityAction<int> addCardToDeck,
+                                        UnityAction<int> addCardToPyramid,
+                                        UnityAction<int> flipCardToPyramid)
+    {
+        this.setCardInTable = setCardInTable;
+        this.addCardToDeck = addCardToDeck;
+        this.addCardToPyramid = addCardToPyramid;
+        this.flipCardToPyramid = flipCardToPyramid;
     }
 
     //-----------------------------------------------------------------------------
@@ -153,6 +170,13 @@ public class MenuController : MonoBehaviour
 
     //-----------------------------------------------------------------------------
 
+    public void FlipCardToPlayersPyramid(int index)
+    {
+        photonView.RPC("FlipCardToPyramid", PhotonTargets.All, index);
+    }
+
+    //-----------------------------------------------------------------------------
+
     [PunRPC]
     public void SetCardInTable(int id)
     {
@@ -177,23 +201,10 @@ public class MenuController : MonoBehaviour
 
     //-----------------------------------------------------------------------------
 
-    public void SetSetCardInTable(UnityAction<int> setCardInTable)
+    [PunRPC]
+    public void FlipCardToPyramid(int id)
     {
-        this.setCardInTable = setCardInTable;
-    }
-
-    //-----------------------------------------------------------------------------
-
-    public void SetAddCardToDeck(UnityAction<int> addCardToDeck)
-    {
-        this.addCardToDeck = addCardToDeck;
-    }
-
-    //-----------------------------------------------------------------------------
-
-    public void SetAddCardToPyramid(UnityAction<int> addCardToPyramid)
-    {
-        this.addCardToPyramid = addCardToPyramid;
+        flipCardToPyramid.Invoke(id);
     }
 
     //-----------------------------------------------------------------------------

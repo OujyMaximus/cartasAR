@@ -30,7 +30,8 @@ public class PlayerDetect
     private UnityAction giveCardToPlayer;
     private UnityAction makePyramid;
     private UnityAction<int> addCardToPyramid;
-
+    private UnityAction findCardToFlipInPyramid;
+    private UnityAction<int> flipCardInPyramid;
     #endregion
 
     private Button[] buttons;
@@ -48,6 +49,8 @@ public class PlayerDetect
                         UnityAction giveCardToPlayer,
                         UnityAction makePyramid,
                         UnityAction<int> addCardToPyramid,
+                        UnityAction findCardToFlipInPyramid,
+                        UnityAction<int> flipCardInPyramid,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -62,6 +65,8 @@ public class PlayerDetect
         this.giveCardToPlayer = giveCardToPlayer;
         this.makePyramid = makePyramid;
         this.addCardToPyramid = addCardToPyramid;
+        this.findCardToFlipInPyramid = findCardToFlipInPyramid;
+        this.flipCardInPyramid = flipCardInPyramid;
         this.buttons = buttons;
     }
 
@@ -76,9 +81,11 @@ public class PlayerDetect
 
         ConfigureButtons();
 
-        GameObject.Find("MenuController").GetComponent<MenuController>().SetSetCardInTable(SetOpositeCardInTable);
-        GameObject.Find("MenuController").GetComponent<MenuController>().SetAddCardToDeck(AddCardToDeck);
-        GameObject.Find("MenuController").GetComponent<MenuController>().SetAddCardToPyramid(AddCardToPyramid);
+        GameObject.Find("MenuController").GetComponent<MenuController>().ConfigurePlayerMethods(
+                                SetOpositeCardInTable,
+                                AddCardToDeck,
+                                AddCardToPyramid,
+                                FlipCardInPyramid);
     }
 
     public void UpdatePlayerDetect()
@@ -103,6 +110,8 @@ public class PlayerDetect
                 b.onClick.AddListener(GiveCardToPlayer);
             else if (b.gameObject.name == "ButtonMakePyramid")
                 b.onClick.AddListener(MakePyramid);
+            else if (b.gameObject.name == "ButtonFlipCard")
+                b.onClick.AddListener(FindCardToFlipInPyramid);
         }
     }
 
@@ -214,6 +223,22 @@ public class PlayerDetect
     {
         addCardToPyramid.Invoke(id);
     }
+
+    //-----------------------------------------------------------------------------
+
+    public void FindCardToFlipInPyramid()
+    {
+        findCardToFlipInPyramid.Invoke();
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void FlipCardInPyramid(int id)
+    {
+        flipCardInPyramid.Invoke(id);
+    }
+
+    //-----------------------------------------------------------------------------
 
     public void SetTouchPosition(Vector2 touchPosition) => this.touchPosition = touchPosition;
 }
