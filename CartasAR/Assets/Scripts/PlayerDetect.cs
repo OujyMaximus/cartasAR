@@ -32,6 +32,7 @@ public class PlayerDetect
     private UnityAction<int> addCardToPyramid;
     private UnityAction findCardToFlipInPyramid;
     private UnityAction<int> flipCardInPyramid;
+    private UnityAction prepareFinalRound;
     #endregion
 
     private Button[] buttons;
@@ -51,6 +52,7 @@ public class PlayerDetect
                         UnityAction<int> addCardToPyramid,
                         UnityAction findCardToFlipInPyramid,
                         UnityAction<int> flipCardInPyramid,
+                        UnityAction prepareFinalRound,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -67,6 +69,7 @@ public class PlayerDetect
         this.addCardToPyramid = addCardToPyramid;
         this.findCardToFlipInPyramid = findCardToFlipInPyramid;
         this.flipCardInPyramid = flipCardInPyramid;
+        this.prepareFinalRound = prepareFinalRound;
         this.buttons = buttons;
     }
 
@@ -112,6 +115,8 @@ public class PlayerDetect
                 b.onClick.AddListener(MakePyramid);
             else if (b.gameObject.name == "ButtonFlipCard")
                 b.onClick.AddListener(FindCardToFlipInPyramid);
+            else if (b.gameObject.name == "ButtonFinalRound")
+                b.onClick.AddListener(PrepareFinalRound);
         }
     }
 
@@ -236,6 +241,13 @@ public class PlayerDetect
     public void FlipCardInPyramid(int id)
     {
         flipCardInPyramid.Invoke(id);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void PrepareFinalRound()
+    {
+        prepareFinalRound.Invoke();
     }
 
     //-----------------------------------------------------------------------------

@@ -81,6 +81,7 @@ public class GameFunctions : MonoBehaviour
                         AddCardToPyramid,
                         FindCardToFlipInPyramid,
                         FlipCardInPyramid,
+                        PrepareFinalRound,
                         buttons);
 
         playerDetect.StartPlayerDetect();
@@ -519,7 +520,6 @@ public class GameFunctions : MonoBehaviour
 
             cardPoserParent = CalculateCardPoserParent();
 
-            //TODO: Aqui habra que comprobar que si la posicion es zero no se pueda colocar la carta
             card.transform.SetParent(cardPoserParent.transform);
             card.transform.localEulerAngles = new Vector3(90f, rand.Next(-10, 10), 0f);
             card.transform.localPosition = new Vector3(0f, 0.001f * (cardPoserParent.transform.childCount - 1), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
@@ -755,5 +755,12 @@ public class GameFunctions : MonoBehaviour
         cardToFlip = GameObject.Find($"Card{id}").transform.GetChild(0).gameObject;
 
         cardToFlip.transform.localEulerAngles = new Vector3(90, 0, 0);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void PrepareFinalRound()
+    {
+
     }
 }
