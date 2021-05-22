@@ -246,7 +246,7 @@ public class GameFunctions : MonoBehaviour
         GameObject placedTable = cameraDetection.GetSpawnedObject();
         GameObject cardPoserInstantiated = GameObject.FindWithTag("CardPoser");
 
-        if (placedTable != null)
+        if (placedTable != null && cardPoserInstantiated != null)
         {
             Vector3 cardPoserPosition = cardPoserInstantiated.transform.position;
 
@@ -362,14 +362,28 @@ public class GameFunctions : MonoBehaviour
 
             auxCard = GameObject.Find("Pyramid").transform.GetChild(i).transform.GetChild(0).gameObject;
 
-            if (auxCard.transform.localEulerAngles.x == 270f)
+            if (auxCard.transform.localEulerAngles.x == 270f && (GameObject.Find("Pyramid").transform.GetChild(i - 1)) != null)
             {
                 auxCard = GameObject.Find("Pyramid").transform.GetChild(i-1).transform.GetChild(0).gameObject;
                 
                 if(auxCard != null)
                     return auxCard.transform.parent.gameObject;
             }
+
+            if(i == 9)
+            {
+                auxCard = GameObject.Find("Pyramid").transform.GetChild(9).transform.GetChild(0).gameObject;
+
+                if (auxCard != null && auxCard.transform.localEulerAngles.x == 90f)
+                {
+                    Debug.Log("Llego aqui 379");
+
+                    return auxCard.transform.parent.gameObject;
+                }
+            }
         }
+
+        Debug.Log("Llego aqui 386");
 
         return null;
     }
@@ -395,12 +409,21 @@ public class GameFunctions : MonoBehaviour
         {
             System.Random rand = new System.Random();
 
-            cardPoserInstantiated = GameObject.Instantiate(cardPoser);
 
             //TODO: Aqui habra que comprobar que si la posicion es zero no se pueda colocar la carta
-            cardPoserInstantiated.transform.SetParent(CalculateCardPoserParent().transform);
-            cardPoserInstantiated.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
-            cardPoserInstantiated.transform.localPosition = Vector3.zero;
+            GameObject cardPoserParent;
+
+            cardPoserParent = CalculateCardPoserParent();
+
+            Debug.Log("cardPoserParent: " + cardPoserParent);
+
+            if(cardPoserParent != null)
+            {
+                cardPoserInstantiated = GameObject.Instantiate(cardPoser);
+                cardPoserInstantiated.transform.SetParent(cardPoserParent.transform);
+                cardPoserInstantiated.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+                cardPoserInstantiated.transform.localPosition = Vector3.zero;
+            }
         }
 
         for (int i = 0; i < cardsInstantiated.Count; i++)
