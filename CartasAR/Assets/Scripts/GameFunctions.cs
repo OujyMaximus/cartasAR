@@ -28,6 +28,7 @@ public class GameFunctions : MonoBehaviour
     private GameObject giveCardGO;
     private GameObject makePyramidGO;
     private GameObject flipCardGO;
+    private GameObject finalRoundGO;
     #endregion
 
     #region PlayerDetect variables
@@ -103,9 +104,11 @@ public class GameFunctions : MonoBehaviour
         giveCardGO = GameObject.Find("GiveCard");
         makePyramidGO = GameObject.Find("MakePyramid");
         flipCardGO = GameObject.Find("FlipCard");
+        finalRoundGO = GameObject.Find("FinalRound");
 
         makePyramidGO.SetActive(false);
         flipCardGO.SetActive(false);
+        finalRoundGO.SetActive(false);
 
         photonView = GetComponent<PhotonView>();
 
@@ -114,8 +117,13 @@ public class GameFunctions : MonoBehaviour
             cardMaterials.Add(cardMaterialsToPlace[i], i);
         }
 
-
         pyramidIndexes = new List<int>();
+
+        //DEBUGGING
+#if !UNITY_EDITOR
+        GameObject.Find("ButtonSelectCard").SetActive(false);
+        GameObject.Find("ButtonSetCard").SetActive(false);
+#endif
     }
 
     private void Update()
@@ -357,34 +365,25 @@ public class GameFunctions : MonoBehaviour
 
     private GameObject CalculateCardPoserParent()
     {
-        for (int i = 0; i < 10; i++)
+        GameObject pyramid = GameObject.Find("Pyramid");
+
+        if(pyramid != null)
         {
-            GameObject auxCard;
-
-            auxCard = GameObject.Find("Pyramid").transform.GetChild(i).transform.GetChild(0).gameObject;
-
-            if (auxCard.transform.localEulerAngles.x == 270f && (GameObject.Find("Pyramid").transform.GetChild(i - 1)) != null)
+            for (int i = 9; i >= 0; i--)
             {
-                auxCard = GameObject.Find("Pyramid").transform.GetChild(i-1).transform.GetChild(0).gameObject;
-                
-                if(auxCard != null)
-                    return auxCard.transform.parent.gameObject;
-            }
+                GameObject auxCard;
 
-            if(i == 9)
-            {
-                auxCard = GameObject.Find("Pyramid").transform.GetChild(9).transform.GetChild(0).gameObject;
-
-                if (auxCard != null && auxCard.transform.localEulerAngles.x == 90f)
+                if(pyramid.transform.GetChild(i).transform.childCount > 0)
                 {
-                    Debug.Log("Llego aqui 379");
+                    auxCard = pyramid.transform.GetChild(i).transform.GetChild(0).gameObject;
 
-                    return auxCard.transform.parent.gameObject;
+                    if(auxCard.transform.localEulerAngles.x == 90f)
+                    {
+                        return auxCard.transform.parent.gameObject;
+                    }
                 }
             }
         }
-
-        Debug.Log("Llego aqui 386");
 
         return null;
     }
@@ -410,13 +409,10 @@ public class GameFunctions : MonoBehaviour
         {
             System.Random rand = new System.Random();
 
-
             //TODO: Aqui habra que comprobar que si la posicion es zero no se pueda colocar la carta
             GameObject cardPoserParent;
 
             cardPoserParent = CalculateCardPoserParent();
-
-            Debug.Log("cardPoserParent: " + cardPoserParent);
 
             if(cardPoserParent != null)
             {
@@ -475,8 +471,6 @@ public class GameFunctions : MonoBehaviour
                     }
                 }
 
-                Debug.Log("cardToSet_1: " + cardToSet);
-
                 if(cardToSet == -1)
                 {
                     foreach (KeyValuePair<Material, int> kvp in cardMaterials)
@@ -488,8 +482,6 @@ public class GameFunctions : MonoBehaviour
                         }
                     }
                 }
-
-                Debug.Log("cardToSet_2: " + cardToSet);
 
                 cardSelected = cardsInstantiated[i];
                 cardsInstantiated.RemoveAt(i);
@@ -503,7 +495,7 @@ public class GameFunctions : MonoBehaviour
         cardSelected.transform.localEulerAngles = new Vector3(90f, rand.Next(-10, 10), 0f);
         cardSelected.transform.localPosition = new Vector3(0f, 0.001f * (cardPoser.transform.parent.childCount-1), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
         Destroy(cardPoser);
-        GameObject.Find("MenuController").GetComponent<MenuController>().SendCardSetInTable(cardToSet);
+        menuController.SendCardSetInTable(cardToSet);
     }
 
     //-----------------------------------------------------------------------------
@@ -658,9 +650,11 @@ public class GameFunctions : MonoBehaviour
 
     public void AddCardsToPyramid(List<int> ids)
     {
-        for(int i = 0; i < 10; i++)
+        GameObject pyramid = GameObject.Find("Pyramid");
+
+        for(int i = 0; i < pyramid.transform.childCount; i++)
         {
-            GameObject cardToPlace = GameObject.Find($"Card{i}");
+            GameObject cardToPlace = pyramid.transform.GetChild(i).gameObject;
 
             Material randomMaterial = null;
 
@@ -728,18 +722,23 @@ public class GameFunctions : MonoBehaviour
 
     public void FindCardToFlipInPyramid()
     {
-        for(int i = 0; i < 10; i++)
+        GameObject pyramid = GameObject.Find("Pyramid");
+
+        for (int i = 0; i < 10; i++)
         {
             GameObject auxCard;
 
-            auxCard = GameObject.Find("Pyramid").transform.GetChild(i).gameObject;
+            auxCard = pyramid.transform.GetChild(i).gameObject;
 
             if(auxCard.transform.GetChild(0).localEulerAngles.x == 270f)
             {
                 menuController.FlipCardToPlayersPyramid(i);
                 
                 if(i == 9)
+                {
                     flipCardGO.SetActive(false);
+                    finalRoundGO.SetActive(true);
+                }
 
                 break;
             }
@@ -750,9 +749,11 @@ public class GameFunctions : MonoBehaviour
 
     public void FlipCardInPyramid(int id)
     {
+        GameObject pyramid = GameObject.Find("Pyramid");
+
         GameObject cardToFlip;
 
-        cardToFlip = GameObject.Find($"Card{id}").transform.GetChild(0).gameObject;
+        cardToFlip = pyramid.transform.GetChild(id).gameObject.transform.GetChild(0).gameObject;
 
         cardToFlip.transform.localEulerAngles = new Vector3(90, 0, 0);
     }

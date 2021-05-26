@@ -23,12 +23,14 @@ public class MenuController : MonoBehaviour
     private UnityAction<int> flipCardToPyramid;
 
     private PhotonView photonView;
+    private int mineId;
 
     private bool isGameStarted;
     private bool isMenuActive;
 
     private int currentPlayerTurn;
     private List<int> playerIDs;
+    private List<int> playerCards;
 
     private GameObject startGameGO;
     private GameObject giveCardGO;
@@ -40,6 +42,7 @@ public class MenuController : MonoBehaviour
         isMenuActive = true;
         currentPlayerTurn = 0;
         playerIDs = new List<int>();
+        playerCards = new List<int>();
     }
 
     //-----------------------------------------------------------------------------
@@ -53,6 +56,8 @@ public class MenuController : MonoBehaviour
 
         startGameGO.SetActive(false);
         giveCardGO.SetActive(false);
+
+        GameObject.Find("MainMenu").SetActive(true);
     }
 
     //-----------------------------------------------------------------------------
@@ -121,6 +126,10 @@ public class MenuController : MonoBehaviour
         for(int i = 0; i < playerList.Length; i++)
         {
             playerIDs.Add(playerList[i].ID);
+
+            photonView.RPC("SetPlayerId", PhotonPlayer.Find(playerList[i].ID), i);
+            
+            playerCards.Add(0);
         }
 
         startGameGO.SetActive(false);
@@ -146,7 +155,7 @@ public class MenuController : MonoBehaviour
 
     public void SendCardSetInTable(int id)
     {
-        photonView.RPC("SetCardInTable", PhotonTargets.Others, id);
+        photonView.RPC("SetCardInTable", PhotonTargets.OthersBuffered, id, mineId);
     }
 
     //-----------------------------------------------------------------------------
@@ -157,6 +166,8 @@ public class MenuController : MonoBehaviour
             currentPlayerTurn = (currentPlayerTurn + 1) % (playerIDs.Count);
         else
             currentPlayerTurn = 0;
+
+        playerCards[currentPlayerTurn] = playerCards[currentPlayerTurn] + 1;
 
         photonView.RPC("AddCardToDeck", PhotonPlayer.Find(playerIDs[currentPlayerTurn]), index);
     }
@@ -178,8 +189,23 @@ public class MenuController : MonoBehaviour
     //-----------------------------------------------------------------------------
 
     [PunRPC]
-    public void SetCardInTable(int id)
+    public void SetPlayerId(int id)
     {
+        mineId = id;
+    }
+
+    //-----------------------------------------------------------------------------
+
+    [PunRPC]
+    public void SetCardInTable(int id, int playerId)
+    {
+        if(playerCards.Count > 0)
+        {
+            Debug.Log("playerId: " + playerId);
+            Debug.Log("playerCards[playerId] before: " + playerCards[playerId]);
+            playerCards[playerId] = playerCards[playerId] - 1;
+        }
+
         setCardInTable.Invoke(id);
     }
 

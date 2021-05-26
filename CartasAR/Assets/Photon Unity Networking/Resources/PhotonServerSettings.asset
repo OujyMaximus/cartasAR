@@ -48,4 +48,5 @@ MonoBehaviour:
   - AddCardsToPyramid
   - AddCardToPyramid
   - FlipCardToPyramid
+  - SetPlayerId
   DisableAutoOpenWizard: 1

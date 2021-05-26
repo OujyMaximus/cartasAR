@@ -109,6 +109,10 @@ public class PlayerDetect
                 b.onClick.AddListener(() => ButtonPlacementPress(b));
             else if (b.gameObject.name == "ButtonCard")
                 b.onClick.AddListener(ButtonSelectCardPress);
+            else if (b.gameObject.name == "ButtonSelectCard")
+                b.onClick.AddListener(SelectCardInFront);
+            else if (b.gameObject.name == "ButtonSetCard")
+                b.onClick.AddListener(SetCardInTable);
             else if (b.gameObject.name == "ButtonGiveCard")
                 b.onClick.AddListener(GiveCardToPlayer);
             else if (b.gameObject.name == "ButtonMakePyramid")
