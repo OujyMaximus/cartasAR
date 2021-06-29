@@ -24,11 +24,13 @@ public class GameFunctions : MonoBehaviour
     private Camera arCamera;
     private TrackedPoseDriver aRTrackedPoseDriver;
     public GameObject cardPositionGO;
-    private List<int> pyramidIndexes;
     private GameObject giveCardGO;
     private GameObject makePyramidGO;
     private GameObject flipCardGO;
     private GameObject finalRoundGO;
+    private GameObject giveCardFinalRoundGO;
+    private GameObject flipCardFinalRoundGO;
+    private GameObject dealCardsFinalRoundGO;
     #endregion
 
     #region PlayerDetect variables
@@ -46,6 +48,12 @@ public class GameFunctions : MonoBehaviour
 
     private Dictionary<Material, int> cardMaterials = new Dictionary<Material, int>();
     private Dictionary<Material, int> cardMaterialsPlayed = new Dictionary<Material, int>();
+    private List<int> pyramidIndexes;
+    private List<int> finalRoundIndexes;
+    #endregion
+
+    #region Game WorkFlow
+    private bool isFinalRound;
     #endregion
 
     private void Awake()
@@ -83,6 +91,11 @@ public class GameFunctions : MonoBehaviour
                         FindCardToFlipInPyramid,
                         FlipCardInPyramid,
                         PrepareFinalRound,
+                        AddCardToFinalRound,
+                        SelectCardToGiveFinalRound,
+                        GiveCardFinalRound,
+                        FlipCardFinalRound,
+                        DealCardsFinalRound,
                         buttons);
 
         playerDetect.StartPlayerDetect();
@@ -100,15 +113,22 @@ public class GameFunctions : MonoBehaviour
         cameraDetection.StartCameraDetection();
 
         menuController = GameObject.Find("MenuController").GetComponent<MenuController>();
+        menuController.SetCleanTable(CleanTableFinalRound);
 
         giveCardGO = GameObject.Find("GiveCard");
         makePyramidGO = GameObject.Find("MakePyramid");
         flipCardGO = GameObject.Find("FlipCard");
         finalRoundGO = GameObject.Find("FinalRound");
+        giveCardFinalRoundGO = GameObject.Find("GiveCardFinalRound");
+        flipCardFinalRoundGO = GameObject.Find("FlipCardFinalRound");
+        dealCardsFinalRoundGO = GameObject.Find("DealCardsFinalRound");
 
         makePyramidGO.SetActive(false);
         flipCardGO.SetActive(false);
         finalRoundGO.SetActive(false);
+        giveCardFinalRoundGO.SetActive(false);
+        flipCardFinalRoundGO.SetActive(false);
+        dealCardsFinalRoundGO.SetActive(false);
 
         photonView = GetComponent<PhotonView>();
 
@@ -118,6 +138,8 @@ public class GameFunctions : MonoBehaviour
         }
 
         pyramidIndexes = new List<int>();
+        finalRoundIndexes = new List<int>();
+        isFinalRound = false;
 
         //DEBUGGING
 #if !UNITY_EDITOR
@@ -493,6 +515,7 @@ public class GameFunctions : MonoBehaviour
 
         cardSelected.transform.SetParent(cardPoser.transform.parent);
         cardSelected.transform.localEulerAngles = new Vector3(90f, rand.Next(-10, 10), 0f);
+        //TODO: CHECK WHY SOMETIMES THE CARDS PLACE INSIDE OTHERS
         cardSelected.transform.localPosition = new Vector3(0f, 0.001f * (cardPoser.transform.parent.childCount-1), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
         Destroy(cardPoser);
         menuController.SendCardSetInTable(cardToSet);
@@ -514,6 +537,7 @@ public class GameFunctions : MonoBehaviour
 
             card.transform.SetParent(cardPoserParent.transform);
             card.transform.localEulerAngles = new Vector3(90f, rand.Next(-10, 10), 0f);
+            //TODO: CHECK WHY SOMETIMES THE CARDS PLACE INSIDE OTHERS
             card.transform.localPosition = new Vector3(0f, 0.001f * (cardPoserParent.transform.childCount - 1), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
         }
 
@@ -643,18 +667,23 @@ public class GameFunctions : MonoBehaviour
         pyramidIndexes.Add(id);
 
         if (pyramidIndexes.Count == 10)
-            AddCardsToPyramid(pyramidIndexes);
+            AddCardsToTable(pyramidIndexes);
     }
 
     //-----------------------------------------------------------------------------
 
-    public void AddCardsToPyramid(List<int> ids)
+    public void AddCardsToTable(List<int> ids)
     {
-        GameObject pyramid = GameObject.Find("Pyramid");
+        GameObject cardsContainer;
 
-        for(int i = 0; i < pyramid.transform.childCount; i++)
+        if (isFinalRound)
+            cardsContainer = GameObject.Find("FinalRound");
+        else
+            cardsContainer = GameObject.Find("Pyramid");
+
+        for(int i = 0; i < cardsContainer.transform.childCount; i++)
         {
-            GameObject cardToPlace = pyramid.transform.GetChild(i).gameObject;
+            GameObject cardToPlace = cardsContainer.transform.GetChild(i).gameObject;
 
             Material randomMaterial = null;
 
@@ -680,15 +709,30 @@ public class GameFunctions : MonoBehaviour
             }
             else
             {
-                cardMaterialsPlayed.Add(randomMaterial, ids[i]);
-                cardMaterials.Remove(randomMaterial);
+                if(!isFinalRound)
+                {
+                    cardMaterialsPlayed.Add(randomMaterial, ids[i]);
+                    cardMaterials.Remove(randomMaterial);
+                }
             }
 
 
             GameObject newCard = GameObject.Instantiate(cardPrefab);
             newCard.transform.SetParent(cardToPlace.transform);
             newCard.transform.localPosition = Vector3.zero;
-            newCard.transform.localEulerAngles = new Vector3(-90f, 0f, 0f);
+
+            if(isFinalRound)
+            {
+                if(i % 2 != 0)
+                    newCard.transform.localEulerAngles = new Vector3(-90f, 0f, 0f);
+                else
+                    newCard.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+            }
+            else
+            {
+                newCard.transform.localEulerAngles = new Vector3(-90f, 0f, 0f);
+            }
+
             newCard.GetComponentInChildren<MeshRenderer>().material = randomMaterial;
         }
     }
@@ -763,5 +807,196 @@ public class GameFunctions : MonoBehaviour
     public void PrepareFinalRound()
     {
 
+        {
+            int playerWMoreCards, auxCardsNumber;
+
+            auxCardsNumber = 0;
+            playerWMoreCards = 0;
+
+            for (int i = 0; i < menuController.GetPlayerCards().Count; i++)
+            {
+                if (menuController.GetPlayerCards()[i] > auxCardsNumber)
+                {
+                    auxCardsNumber = menuController.GetPlayerCards()[i];
+                    playerWMoreCards = i;
+                }
+            }
+
+            //Uncomment this when the textArea to show the loser player is added
+            //GameObject.Find("PlayerFinalRoundText").GetComponent<Text>().text = playerWMoreCards.ToString();
+
+            isFinalRound = true;
+        }
+
+        DealCardsFinalRound();
+
+        finalRoundGO.SetActive(false);
+        giveCardFinalRoundGO.SetActive(true);
+        flipCardFinalRoundGO.SetActive(true);
+        dealCardsFinalRoundGO.SetActive(true);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void DealCardsFinalRound()
+    {
+        menuController.CleanTableToPlayersFinalRound();
+
+        System.Random rand = new System.Random();
+
+        for (int i = 0; i < 4; i++)
+        {
+            if(cardMaterialsPlayed.Count > 0)
+            {
+                List<Material> materialsList = new List<Material>(cardMaterialsPlayed.Keys);
+
+                Material randomMaterial = materialsList[rand.Next(materialsList.Count)];
+
+                int index;
+                cardMaterialsPlayed.TryGetValue(randomMaterial, out index);
+
+                cardMaterialsPlayed.Remove(randomMaterial);
+                cardMaterials.Add(randomMaterial, index);
+
+                menuController.AddCardToPlayersFinalRound(index);
+            }
+            else
+            {
+                Debug.Log("Baia, no quedan cartas!");
+            }
+        }
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void CleanTableFinalRound()
+    {
+        {
+            GameObject pyramid = GameObject.Find("Pyramid");
+
+            if (pyramid.transform.childCount > 0)
+            {
+
+                for (int i = 0; i < pyramid.transform.childCount; i++)
+                {
+                    GameObject childToDestroy;
+
+                    childToDestroy = pyramid.transform.GetChild(i).gameObject;
+
+                    GameObject.Destroy(childToDestroy);
+                }
+            }
+        }
+
+        {
+            Transform finalRoundTransform = GameObject.Find("FinalRound").transform;
+
+            if (finalRoundTransform.GetChild(0).childCount > 1)
+            {
+                for (int i = 0; i < finalRoundTransform.childCount; i++)
+                {
+                    for (int j = 0; j < finalRoundTransform.GetChild(i).childCount; j++)
+                    {
+                        GameObject.Destroy(finalRoundTransform.GetChild(i).GetChild(j).gameObject);
+                    }
+                }
+            }
+
+            finalRoundIndexes.Clear();
+        }
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void AddCardToFinalRound(int id)
+    {
+        finalRoundIndexes.Add(id);
+
+        if (finalRoundIndexes.Count == 4)
+        {
+            AddCardsToTable(finalRoundIndexes);
+        }
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void SelectCardToGiveFinalRound()
+    {
+        if(cardMaterialsPlayed.Count > 0)
+        {
+            System.Random rand = new System.Random();
+
+            List<Material> materialsList = new List<Material>(cardMaterialsPlayed.Keys);
+
+            Material randomMaterial = materialsList[rand.Next(materialsList.Count)];
+
+            int index;
+            cardMaterialsPlayed.TryGetValue(randomMaterial, out index);
+
+            cardMaterialsPlayed.Remove(randomMaterial);
+            cardMaterials.Add(randomMaterial, index);
+
+            menuController.GiveCardFinalRound(index);
+        }
+        else
+        {
+            Debug.Log("No quedan cartas!");
+        }
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void GiveCardFinalRound(int id)
+    {
+        Material randomMaterial = null;
+
+        foreach (KeyValuePair<Material, int> kvp in cardMaterials)
+        {
+            if (kvp.Value == id)
+            {
+                randomMaterial = kvp.Key;
+                break;
+            }
+        }
+
+        GameObject cardToPlace = null;
+
+        GameObject finalRound = GameObject.Find("FinalRound");
+
+        for (int i = 0; i < finalRound.transform.childCount; i++)
+        {
+            GameObject child = finalRound.transform.GetChild(i).gameObject;
+
+            if (child.transform.childCount == 1)
+            {
+                cardToPlace = child;
+                break;
+            }
+        }
+
+        GameObject newCard = GameObject.Instantiate(cardPrefab);
+        newCard.transform.SetParent(cardToPlace.transform);
+        newCard.transform.localPosition = new Vector3(0f, 0.001f, 0f);
+        newCard.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+
+        newCard.GetComponentInChildren<MeshRenderer>().material = randomMaterial;
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void FlipCardFinalRound()
+    {
+        GameObject finalRound = GameObject.Find("FinalRound");
+
+        for(int i = 0; i < finalRound.transform.childCount; i++)
+        {
+            if(finalRound.transform.GetChild(i).GetChild(0).localEulerAngles.x == 270f)
+            {
+                finalRound.transform.GetChild(i).GetChild(0).localEulerAngles = new Vector3(90f, 0f, 0f);
+                break;
+            }
+        }
+
+        menuController.FlipCardToPlayersFinalRound();
     }
 }

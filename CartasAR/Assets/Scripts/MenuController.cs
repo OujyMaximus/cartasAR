@@ -21,6 +21,10 @@ public class MenuController : MonoBehaviour
     private UnityAction<int> addCardToDeck;
     private UnityAction<int> addCardToPyramid;
     private UnityAction<int> flipCardToPyramid;
+    private UnityAction<int> addCardToFinalRound;
+    private UnityAction cleanTableFinalRound;
+    private UnityAction<int> giveCardFinalRound;
+    private UnityAction flipCardFinalRound;
 
     private PhotonView photonView;
     private int mineId;
@@ -66,12 +70,18 @@ public class MenuController : MonoBehaviour
                                         UnityAction<int> setCardInTable,
                                         UnityAction<int> addCardToDeck,
                                         UnityAction<int> addCardToPyramid,
-                                        UnityAction<int> flipCardToPyramid)
+                                        UnityAction<int> flipCardToPyramid,
+                                        UnityAction<int> addCardToFinalRound,
+                                        UnityAction<int> giveCardFinalRound,
+                                        UnityAction flipCardFinalRound)
     {
         this.setCardInTable = setCardInTable;
         this.addCardToDeck = addCardToDeck;
         this.addCardToPyramid = addCardToPyramid;
         this.flipCardToPyramid = flipCardToPyramid;
+        this.addCardToFinalRound = addCardToFinalRound;
+        this.giveCardFinalRound = giveCardFinalRound;
+        this.flipCardFinalRound = flipCardFinalRound;
     }
 
     //-----------------------------------------------------------------------------
@@ -188,6 +198,34 @@ public class MenuController : MonoBehaviour
 
     //-----------------------------------------------------------------------------
 
+    public void AddCardToPlayersFinalRound(int index)
+    {
+        Debug.Log("Entro en addCard en menuController");
+
+        photonView.RPC("AddCardToFinalRound", PhotonTargets.All, index);
+    }
+
+    public void CleanTableToPlayersFinalRound()
+    {
+        photonView.RPC("CleanTableFinalRound", PhotonTargets.All);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void GiveCardToPlayersFinalRound(int index)
+    {
+        photonView.RPC("GiveCardFinalRound", PhotonTargets.All, index);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void FlipCardToPlayersFinalRound()
+    {
+        photonView.RPC("FlipCardFinalRound", PhotonTargets.Others);
+    }
+
+    //-----------------------------------------------------------------------------
+
     [PunRPC]
     public void SetPlayerId(int id)
     {
@@ -235,6 +273,38 @@ public class MenuController : MonoBehaviour
 
     //-----------------------------------------------------------------------------
 
+    [PunRPC]
+    public void AddCardToFinalRound(int id)
+    {
+        addCardToFinalRound.Invoke(id);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    [PunRPC]
+    public void CleanTableFinalRound()
+    {
+        cleanTableFinalRound.Invoke();
+    }
+
+    //-----------------------------------------------------------------------------
+
+    [PunRPC]
+    public void GiveCardFinalRound(int id)
+    {
+        giveCardFinalRound.Invoke(id);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    [PunRPC]
+    public void FlipCardFinalRound()
+    {
+        flipCardFinalRound.Invoke();
+    }
+
+    //-----------------------------------------------------------------------------
+
     public bool GetIsGameStarted() => isGameStarted;
 
     //-----------------------------------------------------------------------------
@@ -244,4 +314,12 @@ public class MenuController : MonoBehaviour
     //-----------------------------------------------------------------------------
 
     public List<int> GetPlayerIds() => playerIDs;
+
+    //-----------------------------------------------------------------------------
+
+    public List<int> GetPlayerCards() => playerCards;
+
+    //-----------------------------------------------------------------------------
+
+    public void SetCleanTable(UnityAction cleanTableFinalRound) => this.cleanTableFinalRound = cleanTableFinalRound;
 }

@@ -49,4 +49,8 @@ MonoBehaviour:
   - AddCardToPyramid
   - FlipCardToPyramid
   - SetPlayerId
+  - AddCardToFinalRound
+  - FlipCardFinalRound
+  - GiveCardFinalRound
+  - CleanTableFinalRound
   DisableAutoOpenWizard: 1

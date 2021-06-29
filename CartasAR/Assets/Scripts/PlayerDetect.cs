@@ -33,6 +33,11 @@ public class PlayerDetect
     private UnityAction findCardToFlipInPyramid;
     private UnityAction<int> flipCardInPyramid;
     private UnityAction prepareFinalRound;
+    private UnityAction<int> addCardToFinalRound;
+    private UnityAction selectCardToGiveFinalRound;
+    private UnityAction<int> giveCardFinalRound;
+    private UnityAction flipCardFinalRound;
+    private UnityAction dealCardsFinalRound;
     #endregion
 
     private Button[] buttons;
@@ -53,6 +58,11 @@ public class PlayerDetect
                         UnityAction findCardToFlipInPyramid,
                         UnityAction<int> flipCardInPyramid,
                         UnityAction prepareFinalRound,
+                        UnityAction<int> addCardToFinalRound,
+                        UnityAction selectCardToGiveFinalRound,
+                        UnityAction<int> giveCardFinalRound,
+                        UnityAction flipCardFinalRound,
+                        UnityAction dealCardsFinalRound,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -70,6 +80,11 @@ public class PlayerDetect
         this.findCardToFlipInPyramid = findCardToFlipInPyramid;
         this.flipCardInPyramid = flipCardInPyramid;
         this.prepareFinalRound = prepareFinalRound;
+        this.addCardToFinalRound = addCardToFinalRound;
+        this.selectCardToGiveFinalRound = selectCardToGiveFinalRound;
+        this.giveCardFinalRound = giveCardFinalRound;
+        this.flipCardFinalRound = flipCardFinalRound;
+        this.dealCardsFinalRound = dealCardsFinalRound;
         this.buttons = buttons;
     }
 
@@ -88,7 +103,10 @@ public class PlayerDetect
                                 SetOpositeCardInTable,
                                 AddCardToDeck,
                                 AddCardToPyramid,
-                                FlipCardInPyramid);
+                                FlipCardInPyramid,
+                                AddCardToFinalRound,
+                                giveCardFinalRound,
+                                flipCardFinalRound);
     }
 
     public void UpdatePlayerDetect()
@@ -121,6 +139,12 @@ public class PlayerDetect
                 b.onClick.AddListener(FindCardToFlipInPyramid);
             else if (b.gameObject.name == "ButtonFinalRound")
                 b.onClick.AddListener(PrepareFinalRound);
+            else if (b.gameObject.name == "ButtonGiveCardFinalRound")
+                b.onClick.AddListener(GiveCardFinalRound);
+            else if (b.gameObject.name == "ButtonFlipCardFinalRound")
+                b.onClick.AddListener(FlipCardFinalRound);
+            else if (b.gameObject.name == "ButtonDealCardsFinalRound")
+                b.onClick.AddListener(DealCardsFinalRound);
         }
     }
 
@@ -202,56 +226,84 @@ public class PlayerDetect
 
     public void SetOpositeCardInTable(int id)
     {
-        setOpositeCardInTable.Invoke(id);
+        setOpositeCardInTable?.Invoke(id);
     }
 
     //-----------------------------------------------------------------------------
 
     public void AddCardToDeck(int id)
     {
-        addCardToDeck.Invoke(cardsInstantiated, id);
+        addCardToDeck?.Invoke(cardsInstantiated, id);
     }
 
     //-----------------------------------------------------------------------------
 
     public void GiveCardToPlayer()
     {
-        giveCardToPlayer.Invoke();
+        giveCardToPlayer?.Invoke();
     }
 
     //-----------------------------------------------------------------------------
 
     public void MakePyramid()
     {
-        makePyramid.Invoke();
+        makePyramid?.Invoke();
     }
 
     //-----------------------------------------------------------------------------
 
     public void AddCardToPyramid(int id)
     {
-        addCardToPyramid.Invoke(id);
+        addCardToPyramid?.Invoke(id);
     }
 
     //-----------------------------------------------------------------------------
 
     public void FindCardToFlipInPyramid()
     {
-        findCardToFlipInPyramid.Invoke();
+        findCardToFlipInPyramid?.Invoke();
     }
 
     //-----------------------------------------------------------------------------
 
     public void FlipCardInPyramid(int id)
     {
-        flipCardInPyramid.Invoke(id);
+        flipCardInPyramid?.Invoke(id);
     }
 
     //-----------------------------------------------------------------------------
 
     public void PrepareFinalRound()
     {
-        prepareFinalRound.Invoke();
+        prepareFinalRound?.Invoke();
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void AddCardToFinalRound(int id)
+    {
+        addCardToFinalRound?.Invoke(id);
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void GiveCardFinalRound()
+    {
+        selectCardToGiveFinalRound?.Invoke();
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void FlipCardFinalRound()
+    {
+        flipCardFinalRound?.Invoke();
+    }
+
+    //-----------------------------------------------------------------------------
+
+    public void DealCardsFinalRound()
+    {
+        dealCardsFinalRound?.Invoke();
     }
 
     //-----------------------------------------------------------------------------
