@@ -100,6 +100,7 @@ public class MenuController : MonoBehaviour
         {
             PhotonNetwork.CreateRoom(CreateGameInput.text, new RoomOptions { MaxPlayers = 0 , PublishUserId = true}, null);
             startGameGO.SetActive(true);
+            GameFunctions.isPlacementSelected = true;
         }
         else
         {
@@ -117,6 +118,7 @@ public class MenuController : MonoBehaviour
         if (JoinGameInput != null && JoinGameInput.text != "")
         {
             succed = PhotonNetwork.JoinRoom(JoinGameInput.text);
+            GameFunctions.isPlacementSelected = true;
         }
         else
         {

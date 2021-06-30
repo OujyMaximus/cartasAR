@@ -41,7 +41,7 @@ public class CameraDetection
     public void StartCameraDetection()
     {
         screenCenter = new Vector3();
-        isPlacementSelected = true;
+        isPlacementSelected = false;
     }
 
     public void UpdateCameraDetection()
@@ -130,4 +130,8 @@ public class CameraDetection
     //----------------------------------------------
 
     public GameObject GetSpawnedObject() => spawnedObject;
+
+    //----------------------------------------------
+
+    public void SetIsPlacementSelected(bool status) => isPlacementSelected = status;
 }

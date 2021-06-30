@@ -41,6 +41,7 @@ public class GameFunctions : MonoBehaviour
     #region CameraDetection variables
     private ARRaycastManager arRaycastManager;
     public GameObject tablePrefab;
+    public static bool isPlacementSelected = false;
     #endregion
 
     #region Card variables
@@ -154,11 +155,24 @@ public class GameFunctions : MonoBehaviour
 
         if(!menuController.GetIsMenuActive())
             cameraDetection.UpdateCameraDetection();
+
+        if(isPlacementSelected)
+        {
+            cameraDetection.SetIsPlacementSelected(true);
+            isPlacementSelected = false;
+        }
     }
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
+
+    public static void SetIsPlacementSelected(bool status)
+    {
+        isPlacementSelected = true;
+    }
+
+    //-----------------------------------------------------------------------------
     //GENERAL METHODS
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     public GameObject InstantiatePrefab(GameObject prefab, Vector3 position, Quaternion rotation)
     {
@@ -171,9 +185,9 @@ public class GameFunctions : MonoBehaviour
 
     public GameObject GetCardPrefab() => cardPrefab;
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
     //BUTTONS METHODS
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     public void ButtonPlacementPress(bool isActive, Button button)
     {
@@ -266,9 +280,9 @@ public class GameFunctions : MonoBehaviour
         }
     }
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
     //PLAYER ENVIRONMENT METHODS
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     //Funcion para comprobar la distancia entre el jugador y el tablero, se ejecutara en el Update de PlayerDetect
     public void CheckPlayerTableDistance()
@@ -290,9 +304,9 @@ public class GameFunctions : MonoBehaviour
         }
     }
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
     //CARDS METHODS
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     //Esta funcion comprueba si el jugador esta arrastrando el dedo hacia la derecha o la izquierda si las cartas estan seleccionadas
     public void CheckCardSwitching(Vector2 touchPosition)
@@ -324,6 +338,8 @@ public class GameFunctions : MonoBehaviour
             }
         }
     }
+
+    //-----------------------------------------------------------------------------
 
     //Este metodo se encarga de mover las cartas cuando se detecta un swipe del jugador, direccion sera 1 si va hacia la izquierda y -1 si es hacia la derecha
     public void SwitchCardInFront(List<GameObject> cardsInstantiated, int direction)
@@ -538,7 +554,7 @@ public class GameFunctions : MonoBehaviour
             card.transform.SetParent(cardPoserParent.transform);
             card.transform.localEulerAngles = new Vector3(90f, rand.Next(-10, 10), 0f);
             //TODO: CHECK WHY SOMETIMES THE CARDS PLACE INSIDE OTHERS
-            card.transform.localPosition = new Vector3(0f, 0.001f * (cardPoserParent.transform.childCount - 1), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
+            card.transform.localPosition = new Vector3(0f, 0.001f * (cardPoserParent.transform.childCount), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
         }
 
         {
@@ -592,9 +608,9 @@ public class GameFunctions : MonoBehaviour
     }
 
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
     //CAMERA DETECTION METHODS
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     public void PlaneDetection()
     {
@@ -605,9 +621,9 @@ public class GameFunctions : MonoBehaviour
          */
     }
 
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
     //PYRAMID METHODS
-    //----------------------------------------------
+    //-----------------------------------------------------------------------------
 
     public void AddCardToDeck(List<GameObject> cardsInstantiated, int id)
     {
@@ -681,7 +697,7 @@ public class GameFunctions : MonoBehaviour
         else
             cardsContainer = GameObject.Find("Pyramid");
 
-        for(int i = 0; i < cardsContainer.transform.childCount; i++)
+        for (int i = 0; i < cardsContainer.transform.childCount; i++)
         {
             GameObject cardToPlace = cardsContainer.transform.GetChild(i).gameObject;
 
@@ -824,8 +840,6 @@ public class GameFunctions : MonoBehaviour
 
             //Uncomment this when the textArea to show the loser player is added
             //GameObject.Find("PlayerFinalRoundText").GetComponent<Text>().text = playerWMoreCards.ToString();
-
-            isFinalRound = true;
         }
 
         DealCardsFinalRound();
@@ -840,29 +854,33 @@ public class GameFunctions : MonoBehaviour
 
     public void DealCardsFinalRound()
     {
-        menuController.CleanTableToPlayersFinalRound();
-
-        System.Random rand = new System.Random();
-
-        for (int i = 0; i < 4; i++)
         {
-            if(cardMaterialsPlayed.Count > 0)
+            menuController.CleanTableToPlayersFinalRound();
+        }
+
+        {
+            System.Random rand = new System.Random();
+
+            for (int i = 0; i < 4; i++)
             {
-                List<Material> materialsList = new List<Material>(cardMaterialsPlayed.Keys);
+                if (cardMaterialsPlayed.Count > 0)
+                {
+                    List<Material> materialsList = new List<Material>(cardMaterialsPlayed.Keys);
 
-                Material randomMaterial = materialsList[rand.Next(materialsList.Count)];
+                    Material randomMaterial = materialsList[rand.Next(materialsList.Count)];
 
-                int index;
-                cardMaterialsPlayed.TryGetValue(randomMaterial, out index);
+                    int index;
+                    cardMaterialsPlayed.TryGetValue(randomMaterial, out index);
 
-                cardMaterialsPlayed.Remove(randomMaterial);
-                cardMaterials.Add(randomMaterial, index);
+                    cardMaterialsPlayed.Remove(randomMaterial);
+                    cardMaterials.Add(randomMaterial, index);
 
-                menuController.AddCardToPlayersFinalRound(index);
-            }
-            else
-            {
-                Debug.Log("Baia, no quedan cartas!");
+                    menuController.AddCardToPlayersFinalRound(index);
+                }
+                else
+                {
+                    Debug.Log("Baia, no quedan cartas!");
+                }
             }
         }
     }
@@ -871,6 +889,8 @@ public class GameFunctions : MonoBehaviour
 
     public void CleanTableFinalRound()
     {
+        finalRoundIndexes.Clear();
+        
         {
             GameObject pyramid = GameObject.Find("Pyramid");
 
@@ -901,8 +921,6 @@ public class GameFunctions : MonoBehaviour
                     }
                 }
             }
-
-            finalRoundIndexes.Clear();
         }
     }
 
@@ -911,6 +929,8 @@ public class GameFunctions : MonoBehaviour
     public void AddCardToFinalRound(int id)
     {
         finalRoundIndexes.Add(id);
+
+        isFinalRound = true;
 
         if (finalRoundIndexes.Count == 4)
         {
@@ -936,7 +956,7 @@ public class GameFunctions : MonoBehaviour
             cardMaterialsPlayed.Remove(randomMaterial);
             cardMaterials.Add(randomMaterial, index);
 
-            menuController.GiveCardFinalRound(index);
+            menuController.GiveCardToPlayersFinalRound(index);
         }
         else
         {
@@ -956,6 +976,18 @@ public class GameFunctions : MonoBehaviour
             {
                 randomMaterial = kvp.Key;
                 break;
+            }
+        }
+
+        if(randomMaterial == null)
+        {
+            foreach (KeyValuePair<Material, int> kvp in cardMaterialsPlayed)
+            {
+                if (kvp.Value == id)
+                {
+                    randomMaterial = kvp.Key;
+                    break;
+                }
             }
         }
 
@@ -986,6 +1018,8 @@ public class GameFunctions : MonoBehaviour
 
     public void FlipCardFinalRound()
     {
+        Debug.Log("Pulsando FlipCardFinalRound!!");
+
         GameObject finalRound = GameObject.Find("FinalRound");
 
         for(int i = 0; i < finalRound.transform.childCount; i++)
