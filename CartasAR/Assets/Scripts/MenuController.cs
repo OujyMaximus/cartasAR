@@ -202,8 +202,6 @@ public class MenuController : MonoBehaviour
 
     public void AddCardToPlayersFinalRound(int index)
     {
-        Debug.Log("Entro en addCard en menuController");
-
         photonView.RPC("AddCardToFinalRound", PhotonTargets.All, index);
     }
 
@@ -223,7 +221,7 @@ public class MenuController : MonoBehaviour
 
     public void FlipCardToPlayersFinalRound()
     {
-        photonView.RPC("FlipCardFinalRound", PhotonTargets.Others);
+        photonView.RPC("FlipCardFinalRound", PhotonTargets.All);
     }
 
     //-----------------------------------------------------------------------------

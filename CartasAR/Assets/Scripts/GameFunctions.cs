@@ -95,6 +95,7 @@ public class GameFunctions : MonoBehaviour
                         AddCardToFinalRound,
                         SelectCardToGiveFinalRound,
                         GiveCardFinalRound,
+                        FlipCardToPlayersFinalRound,
                         FlipCardFinalRound,
                         DealCardsFinalRound,
                         buttons);
@@ -447,7 +448,6 @@ public class GameFunctions : MonoBehaviour
         {
             System.Random rand = new System.Random();
 
-            //TODO: Aqui habra que comprobar que si la posicion es zero no se pueda colocar la carta
             GameObject cardPoserParent;
 
             cardPoserParent = CalculateCardPoserParent();
@@ -531,7 +531,6 @@ public class GameFunctions : MonoBehaviour
 
         cardSelected.transform.SetParent(cardPoser.transform.parent);
         cardSelected.transform.localEulerAngles = new Vector3(90f, rand.Next(-10, 10), 0f);
-        //TODO: CHECK WHY SOMETIMES THE CARDS PLACE INSIDE OTHERS
         cardSelected.transform.localPosition = new Vector3(0f, 0.001f * (cardPoser.transform.parent.childCount-1), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
         Destroy(cardPoser);
         menuController.SendCardSetInTable(cardToSet);
@@ -553,7 +552,6 @@ public class GameFunctions : MonoBehaviour
 
             card.transform.SetParent(cardPoserParent.transform);
             card.transform.localEulerAngles = new Vector3(90f, rand.Next(-10, 10), 0f);
-            //TODO: CHECK WHY SOMETIMES THE CARDS PLACE INSIDE OTHERS
             card.transform.localPosition = new Vector3(0f, 0.001f * (cardPoserParent.transform.childCount), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
         }
 
@@ -656,6 +654,8 @@ public class GameFunctions : MonoBehaviour
         {
             cardMaterialsPlayed.Add(randomMaterial, id);
         }
+
+        //TODO:REORDER THE CARDS SO THE NEW CARD IS SHOWED BY DEFAULT
 
         int cardIndex = cardsInstantiated.Count - 1;
         float newZ;
@@ -1016,10 +1016,15 @@ public class GameFunctions : MonoBehaviour
 
     //-----------------------------------------------------------------------------
 
+    public void FlipCardToPlayersFinalRound()
+    {
+        menuController.FlipCardToPlayersFinalRound();
+    }
+
+    //-----------------------------------------------------------------------------
+
     public void FlipCardFinalRound()
     {
-        Debug.Log("Pulsando FlipCardFinalRound!!");
-
         GameObject finalRound = GameObject.Find("FinalRound");
 
         for(int i = 0; i < finalRound.transform.childCount; i++)
@@ -1030,7 +1035,5 @@ public class GameFunctions : MonoBehaviour
                 break;
             }
         }
-
-        menuController.FlipCardToPlayersFinalRound();
     }
 }

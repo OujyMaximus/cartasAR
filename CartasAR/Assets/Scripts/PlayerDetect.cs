@@ -36,6 +36,7 @@ public class PlayerDetect
     private UnityAction<int> addCardToFinalRound;
     private UnityAction selectCardToGiveFinalRound;
     private UnityAction<int> giveCardFinalRound;
+    private UnityAction flipCardToPlayersFinalRound;
     private UnityAction flipCardFinalRound;
     private UnityAction dealCardsFinalRound;
     #endregion
@@ -61,6 +62,7 @@ public class PlayerDetect
                         UnityAction<int> addCardToFinalRound,
                         UnityAction selectCardToGiveFinalRound,
                         UnityAction<int> giveCardFinalRound,
+                        UnityAction flipCardToPlayersFinalRound,
                         UnityAction flipCardFinalRound,
                         UnityAction dealCardsFinalRound,
                         Button[] buttons)
@@ -83,6 +85,7 @@ public class PlayerDetect
         this.addCardToFinalRound = addCardToFinalRound;
         this.selectCardToGiveFinalRound = selectCardToGiveFinalRound;
         this.giveCardFinalRound = giveCardFinalRound;
+        this.flipCardToPlayersFinalRound = flipCardToPlayersFinalRound;
         this.flipCardFinalRound = flipCardFinalRound;
         this.dealCardsFinalRound = dealCardsFinalRound;
         this.buttons = buttons;
@@ -142,7 +145,7 @@ public class PlayerDetect
             else if (b.gameObject.name == "ButtonGiveCardFinalRound")
                 b.onClick.AddListener(GiveCardFinalRound);
             else if (b.gameObject.name == "ButtonFlipCardFinalRound")
-                b.onClick.AddListener(FlipCardFinalRound);
+                b.onClick.AddListener(FlipCardToPlayersFinalRound);
             else if (b.gameObject.name == "ButtonDealCardsFinalRound")
                 b.onClick.AddListener(DealCardsFinalRound);
         }
@@ -294,9 +297,9 @@ public class PlayerDetect
 
     //-----------------------------------------------------------------------------
 
-    public void FlipCardFinalRound()
+    public void FlipCardToPlayersFinalRound()
     {
-        flipCardFinalRound?.Invoke();
+        flipCardToPlayersFinalRound?.Invoke();
     }
 
     //-----------------------------------------------------------------------------
