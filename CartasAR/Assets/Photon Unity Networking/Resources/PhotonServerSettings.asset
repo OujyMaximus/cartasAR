@@ -29,11 +29,17 @@ MonoBehaviour:
   RunInBackground: 1
   RpcList:
   - AddCardToDeck
+  - AddCardToFinalRound
+  - AddCardToPyramid
   - Chat
+  - CleanTableFinalRound
   - ColorRpc
   - DestroyRpc
   - DoJump
   - Flash
+  - FlipCardFinalRound
+  - FlipCardToPyramid
+  - GiveCardFinalRound
   - InstantiateRpc
   - Marco
   - PickupItemInit
@@ -44,13 +50,6 @@ MonoBehaviour:
   - RequestForPickupItems
   - RequestForPickupTimes
   - SetCardInTable
-  - TaggedPlayer
-  - AddCardsToPyramid
-  - AddCardToPyramid
-  - FlipCardToPyramid
   - SetPlayerId
-  - AddCardToFinalRound
-  - FlipCardFinalRound
-  - GiveCardFinalRound
-  - CleanTableFinalRound
+  - TaggedPlayer
   DisableAutoOpenWizard: 1
