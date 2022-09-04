@@ -34,6 +34,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _ParallaxMapping_c2099b6dc09646749dd0c78637cb1e8c_Heightmap_1:
+        m_Texture: {fileID: 2800000, guid: 113fbb558c8871e4a978ccd606b7053b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_34188C8E_Texture_1:
         m_Texture: {fileID: 2800000, guid: ba36d3438d0af7f4f81bce5512f70253, type: 3}
         m_Scale: {x: 1, y: 1}

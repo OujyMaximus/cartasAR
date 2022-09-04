@@ -11,7 +11,8 @@ public class MenuController : MonoBehaviour
 
     [SerializeField] private string VersionName = "0.1";
     [SerializeField] private GameObject ConnectPanel;
-
+       
+    [SerializeField] private InputField UsernameInput;
     [SerializeField] private InputField CreateGameInput;
     [SerializeField] private Text createGameErrorText;
     [SerializeField] private InputField JoinGameInput;
@@ -101,6 +102,12 @@ public class MenuController : MonoBehaviour
             PhotonNetwork.CreateRoom(CreateGameInput.text, new RoomOptions { MaxPlayers = 0 , PublishUserId = true}, null);
             startGameGO.SetActive(true);
             GameFunctions.isPlacementSelected = true;
+
+            PhotonNetwork.playerName = UsernameInput.text;
+            /*if (photonView.owner != null)
+                photonView.owner.NickName = UsernameInput.text;
+            else
+                Debug.Log("photonView.owner es Null");*/
         }
         else
         {
@@ -119,6 +126,8 @@ public class MenuController : MonoBehaviour
         {
             succed = PhotonNetwork.JoinRoom(JoinGameInput.text);
             GameFunctions.isPlacementSelected = true;
+
+            PhotonNetwork.playerName = UsernameInput.text;
         }
         else
         {
@@ -135,9 +144,10 @@ public class MenuController : MonoBehaviour
 
         PhotonPlayer[] playerList = PhotonNetwork.playerList;
 
-        for(int i = 0; i < playerList.Length; i++)
+        for (int i = 0; i < playerList.Length; i++)
         {
             playerIDs.Add(playerList[i].ID);
+            Debug.Log("Username: " + playerList[i].NickName);
 
             photonView.RPC("SetPlayerId", PhotonPlayer.Find(playerList[i].ID), i);
             

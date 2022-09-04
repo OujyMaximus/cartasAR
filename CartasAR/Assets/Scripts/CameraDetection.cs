@@ -14,6 +14,9 @@ public class CameraDetection
 
     private PlayerDetect playerDetect;
     private GameObject spawnedObject;
+    private Light boardLight;
+    private GameObject boardLightGO;
+    private GameObject spawnedLight;
 
     static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
     private Vector3 screenCenter;
@@ -42,6 +45,8 @@ public class CameraDetection
     {
         screenCenter = new Vector3();
         isPlacementSelected = false;
+
+        boardLightGO = new GameObject("BoardLight");
     }
 
     public void UpdateCameraDetection()
@@ -87,6 +92,12 @@ public class CameraDetection
                                 placementIndicator.SetActive(false);
                                 playerDetect.SetPlacementIndicatorStatus(false);
                                 spawnedObject = GameFunctions.Instantiate(tablePrefab, hitPose.position, hitPose.rotation);
+                                
+                                spawnedLight = GameFunctions.Instantiate(boardLightGO, new Vector3(hitPose.position.x, hitPose.position.y + 50, hitPose.position.z), Quaternion.Euler(new Vector3(50, -30, 0)));
+                                boardLight = spawnedLight.AddComponent<Light>();
+                                boardLight.type = LightType.Directional;
+                                boardLight.intensity = 0.005f;
+                                boardLight.color = new Color(255, 244, 214, 255);
                             }
                             else
                             {
@@ -95,6 +106,7 @@ public class CameraDetection
                                 playerDetect.SetPlacementIndicatorStatus(false);
                                 spawnedObject.transform.position = hitPose.position;
                                 spawnedObject.transform.rotation = hitPose.rotation;
+                                spawnedLight.transform.position = new Vector3(hitPose.position.x, hitPose.position.y + 50, hitPose.position.z);
                             }
                         }
                     }

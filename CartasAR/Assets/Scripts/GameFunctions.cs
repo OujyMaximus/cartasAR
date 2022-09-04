@@ -57,6 +57,11 @@ public class GameFunctions : MonoBehaviour
     private bool isFinalRound;
     #endregion
 
+    #region Testing variables
+    private UInt16 currentMaterial;
+    public List<Material> boardMaterials;
+    #endregion
+
     private void Awake()
     {
         PhotonNetwork.ConnectUsingSettings("VersionName");
@@ -98,6 +103,7 @@ public class GameFunctions : MonoBehaviour
                         FlipCardToPlayersFinalRound,
                         FlipCardFinalRound,
                         DealCardsFinalRound,
+                        ChangeBoardMaterial,
                         buttons);
 
         playerDetect.StartPlayerDetect();
@@ -143,6 +149,9 @@ public class GameFunctions : MonoBehaviour
         finalRoundIndexes = new List<int>();
         isFinalRound = false;
 
+        //TESTING
+        currentMaterial = 1;
+
         //DEBUGGING
 #if !UNITY_EDITOR
         GameObject.Find("ButtonSelectCard").SetActive(false);
@@ -154,10 +163,10 @@ public class GameFunctions : MonoBehaviour
     {
         playerDetect.UpdatePlayerDetect();
 
-        if(!menuController.GetIsMenuActive())
+        if (!menuController.GetIsMenuActive())
             cameraDetection.UpdateCameraDetection();
 
-        if(isPlacementSelected)
+        if (isPlacementSelected)
         {
             cameraDetection.SetIsPlacementSelected(true);
             isPlacementSelected = false;
@@ -222,7 +231,7 @@ public class GameFunctions : MonoBehaviour
             {
                 float newX, newZ;
 
-                for(int i=0; i<cardsInstantiated.Count; i++)
+                for (int i = 0; i < cardsInstantiated.Count; i++)
                 {
                     newX = -0.08f * i;
                     if (i == 0)
@@ -274,7 +283,7 @@ public class GameFunctions : MonoBehaviour
         }
         else
         {
-            for(int i=0; i<cardsInstantiated.Count; i++)
+            for (int i = 0; i < cardsInstantiated.Count; i++)
             {
                 cardsInstantiated[i].SetActive(false);
             }
@@ -316,10 +325,10 @@ public class GameFunctions : MonoBehaviour
         {
             Touch touch = Input.GetTouch(0);
 
-            if(touch.phase == TouchPhase.Began)
+            if (touch.phase == TouchPhase.Began)
                 playerDetect.SetTouchPosition(touch.position);
 
-            if(touch.phase == TouchPhase.Ended)
+            if (touch.phase == TouchPhase.Ended)
             {
                 if (touch.position.y > 200)
                 {
@@ -360,7 +369,7 @@ public class GameFunctions : MonoBehaviour
             }
         }
 
-        if (!(currentCardInFront == 0 && direction == -1)&&!(currentCardInFront == cardsInstantiated.Count-1 && direction == 1))
+        if (!(currentCardInFront == 0 && direction == -1) && !(currentCardInFront == cardsInstantiated.Count - 1 && direction == 1))
         {
             float newX, newY, newZ;
 
@@ -406,17 +415,17 @@ public class GameFunctions : MonoBehaviour
     {
         GameObject pyramid = GameObject.Find("Pyramid");
 
-        if(pyramid != null)
+        if (pyramid != null)
         {
             for (int i = 9; i >= 0; i--)
             {
                 GameObject auxCard;
 
-                if(pyramid.transform.GetChild(i).transform.childCount > 0)
+                if (pyramid.transform.GetChild(i).transform.childCount > 0)
                 {
                     auxCard = pyramid.transform.GetChild(i).transform.GetChild(0).gameObject;
 
-                    if(auxCard.transform.localEulerAngles.x == 90f)
+                    if (auxCard.transform.localEulerAngles.x == 90f)
                     {
                         return auxCard.transform.parent.gameObject;
                     }
@@ -452,7 +461,7 @@ public class GameFunctions : MonoBehaviour
 
             cardPoserParent = CalculateCardPoserParent();
 
-            if(cardPoserParent != null)
+            if (cardPoserParent != null)
             {
                 cardPoserInstantiated = GameObject.Instantiate(cardPoser);
                 cardPoserInstantiated.transform.SetParent(cardPoserParent.transform);
@@ -509,7 +518,7 @@ public class GameFunctions : MonoBehaviour
                     }
                 }
 
-                if(cardToSet == -1)
+                if (cardToSet == -1)
                 {
                     foreach (KeyValuePair<Material, int> kvp in cardMaterials)
                     {
@@ -531,7 +540,7 @@ public class GameFunctions : MonoBehaviour
 
         cardSelected.transform.SetParent(cardPoser.transform.parent);
         cardSelected.transform.localEulerAngles = new Vector3(90f, rand.Next(-10, 10), 0f);
-        cardSelected.transform.localPosition = new Vector3(0f, 0.001f * (cardPoser.transform.parent.childCount-1), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
+        cardSelected.transform.localPosition = new Vector3(0f, 0.001f * (cardPoser.transform.parent.childCount - 1), (float)(rand.NextDouble() * (0.005 - -0.005) + -0.005));
         Destroy(cardPoser);
         menuController.SendCardSetInTable(cardToSet);
     }
@@ -566,7 +575,7 @@ public class GameFunctions : MonoBehaviour
                 }
             }
 
-            if(materialToSet == null)
+            if (materialToSet == null)
             {
                 foreach (KeyValuePair<Material, int> kvp in cardMaterialsPlayed)
                 {
@@ -650,7 +659,7 @@ public class GameFunctions : MonoBehaviour
 
         cardRemoved = cardMaterials.Remove(randomMaterial);
 
-        if(cardRemoved)
+        if (cardRemoved)
         {
             cardMaterialsPlayed.Add(randomMaterial, id);
         }
@@ -712,7 +721,7 @@ public class GameFunctions : MonoBehaviour
                 }
             }
 
-            if(randomMaterial == null)
+            if (randomMaterial == null)
             {
                 foreach (KeyValuePair<Material, int> kvp in cardMaterialsPlayed)
                 {
@@ -725,7 +734,7 @@ public class GameFunctions : MonoBehaviour
             }
             else
             {
-                if(!isFinalRound)
+                if (!isFinalRound)
                 {
                     cardMaterialsPlayed.Add(randomMaterial, ids[i]);
                     cardMaterials.Remove(randomMaterial);
@@ -737,9 +746,9 @@ public class GameFunctions : MonoBehaviour
             newCard.transform.SetParent(cardToPlace.transform);
             newCard.transform.localPosition = Vector3.zero;
 
-            if(isFinalRound)
+            if (isFinalRound)
             {
-                if(i % 2 != 0)
+                if (i % 2 != 0)
                     newCard.transform.localEulerAngles = new Vector3(-90f, 0f, 0f);
                 else
                     newCard.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
@@ -758,7 +767,7 @@ public class GameFunctions : MonoBehaviour
     public void MakePyramid()
     {
         System.Random rand = new System.Random();
-        
+
         for (int i = 0; i < 10; i++)
         {
             List<Material> materialsList = new List<Material>(cardMaterials.Keys);
@@ -790,11 +799,11 @@ public class GameFunctions : MonoBehaviour
 
             auxCard = pyramid.transform.GetChild(i).gameObject;
 
-            if(auxCard.transform.GetChild(0).localEulerAngles.x == 270f)
+            if (auxCard.transform.GetChild(0).localEulerAngles.x == 270f)
             {
                 menuController.FlipCardToPlayersPyramid(i);
-                
-                if(i == 9)
+
+                if (i == 9)
                 {
                     flipCardGO.SetActive(false);
                     finalRoundGO.SetActive(true);
@@ -890,7 +899,7 @@ public class GameFunctions : MonoBehaviour
     public void CleanTableFinalRound()
     {
         finalRoundIndexes.Clear();
-        
+
         {
             GameObject pyramid = GameObject.Find("Pyramid");
 
@@ -942,7 +951,7 @@ public class GameFunctions : MonoBehaviour
 
     public void SelectCardToGiveFinalRound()
     {
-        if(cardMaterialsPlayed.Count > 0)
+        if (cardMaterialsPlayed.Count > 0)
         {
             System.Random rand = new System.Random();
 
@@ -979,7 +988,7 @@ public class GameFunctions : MonoBehaviour
             }
         }
 
-        if(randomMaterial == null)
+        if (randomMaterial == null)
         {
             foreach (KeyValuePair<Material, int> kvp in cardMaterialsPlayed)
             {
@@ -1027,13 +1036,27 @@ public class GameFunctions : MonoBehaviour
     {
         GameObject finalRound = GameObject.Find("FinalRound");
 
-        for(int i = 0; i < finalRound.transform.childCount; i++)
+        for (int i = 0; i < finalRound.transform.childCount; i++)
         {
-            if(finalRound.transform.GetChild(i).GetChild(0).localEulerAngles.x == 270f)
+            if (finalRound.transform.GetChild(i).GetChild(0).localEulerAngles.x == 270f)
             {
                 finalRound.transform.GetChild(i).GetChild(0).localEulerAngles = new Vector3(90f, 0f, 0f);
                 break;
             }
         }
+    }
+
+    //-----------------------------------------------------------------------------
+    //TESTING METHODS
+    //-----------------------------------------------------------------------------
+
+    public void ChangeBoardMaterial()
+    {
+        cameraDetection.GetSpawnedObject().GetComponentInChildren<MeshRenderer>().material = boardMaterials[currentMaterial];
+        tablePrefab.GetComponentInChildren<MeshRenderer>().material = boardMaterials[currentMaterial];
+
+        currentMaterial = (currentMaterial == boardMaterials.Count-1) ? (UInt16)0 : ++currentMaterial;
+
+        Debug.Log("currentMaterial: " + currentMaterial);
     }
 }

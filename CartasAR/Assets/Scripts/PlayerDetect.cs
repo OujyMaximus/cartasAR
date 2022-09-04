@@ -25,6 +25,10 @@ public class PlayerDetect
     private UnityAction<List<GameObject>> setCardInTable;
     private UnityAction<int> setOpositeCardInTable;
 
+    //TESTING
+
+    private UnityAction changeBoardMaterial;
+
     #region Pyramid
     private UnityAction<List<GameObject>, int> addCardToDeck;
     private UnityAction giveCardToPlayer;
@@ -65,6 +69,7 @@ public class PlayerDetect
                         UnityAction flipCardToPlayersFinalRound,
                         UnityAction flipCardFinalRound,
                         UnityAction dealCardsFinalRound,
+                        UnityAction changeBoardMaterial,
                         Button[] buttons)
     {
         this.buttonPlacementPress = buttonPlacementPress;
@@ -88,6 +93,7 @@ public class PlayerDetect
         this.flipCardToPlayersFinalRound = flipCardToPlayersFinalRound;
         this.flipCardFinalRound = flipCardFinalRound;
         this.dealCardsFinalRound = dealCardsFinalRound;
+        this.changeBoardMaterial = changeBoardMaterial;
         this.buttons = buttons;
     }
 
@@ -148,6 +154,8 @@ public class PlayerDetect
                 b.onClick.AddListener(FlipCardToPlayersFinalRound);
             else if (b.gameObject.name == "ButtonDealCardsFinalRound")
                 b.onClick.AddListener(DealCardsFinalRound);
+            else if (b.gameObject.name == "ButtonMaterial")
+                b.onClick.AddListener(ButtonMaterial);
         }
     }
 
@@ -312,4 +320,14 @@ public class PlayerDetect
     //-----------------------------------------------------------------------------
 
     public void SetTouchPosition(Vector2 touchPosition) => this.touchPosition = touchPosition;
+
+    //----------------------------------------------
+    //TESTING METHODS
+    //----------------------------------------------
+
+    public void ButtonMaterial()
+    {
+        Debug.Log("Hola");
+        changeBoardMaterial?.Invoke();
+    }
 }
